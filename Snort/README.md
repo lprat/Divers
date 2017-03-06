@@ -4,8 +4,8 @@
 * Signatures folder:
   * cve-2015-7548.txt (2016)
   * exploitkit_blackhole.txt (2011)
-  * spip.txt cve-???? (2011)
-  * microsoft.txt cve-???? (2010)
+  * spip.txt cve-2011-????
+  * microsoft.txt CVE-2010-3971 (2010)
 
 ## Contact
 
