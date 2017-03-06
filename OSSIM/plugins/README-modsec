@@ -1,0 +1,29 @@
+Plugin OSSIM - ModSecurity Détecteur
+Introduction
+
+Importation automatique des règles actives de modsecurity dans ossim selon le schéma /etc/ossim.modsec .
+/etc/ossim.modsec
+
+#attack type,priority,readibility
+bad_robots,1,1
+comment_spam,1,1
+common_exceptions,1,1
+correlation,2,2
+generic_attacks,3,3
+http_policy,2,2
+inbound_blocking,1,1
+outbound,1,1
+outbound_blocking,1,1
+protocol_anomalies,2,2
+protocol_violations,2,2
+request_limits,2,2
+sql_injection_attacks,2,2
+tight_security,2,2
+trojans,2,2
+xss_attacks,2,2
+
+Création SQL
+
+perl import-modsectoossim.pl > modsec.sql
+
+

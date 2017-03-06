@@ -1,0 +1,56 @@
+                                                                        Scan Spoofing README
+                                                                        -----------------
+
+ Cette methode à ete decouverte par antirez qu'il l'a posté sur bugtraq.
+Le principe est simple:
+
+Une connection se fait ainsi:
+
+HOTE A   -- SYN --> HOTE B
+HOTE A   <-- S/A --   HOTE B
+HOTE A   -- ACK --> HOTE B
+
+Si par exemple l'HOTE A essaie de se connecter sur le port 80 de l' HOTE B,
+        - alors si le port est ouvert ca fera:
+
+        HOTE A   -- SYN --> HOTE B
+        HOTE A   <-- S/A --   HOTE B
+        HOTE A   -- ACK --> HOTE B
+
+        - Alors que si il est fermé ca fera:
+
+        HOTE A   -- SYN --> HOTE B
+        HOTE A   <-- RST --   HOTE B
+
+A present si nous faisons une requête en spoofant:
+        - et que le port est ouvert:
+
+        HOTE X -- SYN --> HOTE B
+        HOTE A <-- S/A --   HOTE B
+        HOTE A -- RST -->  HOTE B
+
+        - et que le port est fermé:
+
+        HOTE X -- SYN --> HOTE B
+        HOTE A <-- RST --  HOTE B
+
+HOTE X etant vous qui spoof avec l'adresse de l'hote A.
+
+Si le port est ouvert on voit bien que l'hote B renvoie un SYN/ACK à l'hote A mais l'hote A n'ayant rien demandé
+renvoie un flag RST.
+
+Si le port est fermé on voit bien l'hote B renvoyer un flag RST que l'hote A ne prend pas en compte... Et donc ne fait rien.
+
+Maintenant que nous savons ca, nous allons comprendre comment on récupère l'information de savoir si le port
+est ouvert ou non!
+Dans le TCP/IP, plus particulièrement dans les paramètres IP, il y a un paramètre appelé ID qui s’incrémente a chaque fois qu'un packet
+est envoyé.
+Donc si le port est ouvert vu que l'hote A envoi un flag RST, son ID s’incrémente. En envoyant un packet
+sur la machine que nous allons spoofer nous pouvons récupérer son ID actuel après cela on envoie les packets spoofé
+et on refait le teste pour regarder son ID si celui-ci a grandi proportionnellement au packet envoyé alors il y a de grande
+chance que le port chez l'hote B soit ouvert.
+
+Pour se protéger d'une telle attaque, il existe des patchs, ou alors j'ai remarqué que sur la RH7.1 l'id reste constamment à 0.
+
+Lionel PRAT
+-------------------

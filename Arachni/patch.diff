@@ -1,0 +1,118 @@
+--- mutable.rb	2016-09-21 15:21:58.501894271 +0200
++++ ./system/gems/gems/arachni-1.4/lib/arachni/element/capabilities/mutable.rb	2016-09-21 15:23:27.893892447 +0200
+@@ -178,7 +178,6 @@
+         options          = prepare_mutation_options( options )
+         generated        = Support::LookUp::HashSet.new
+         filled_in_inputs = Options.input.fill( @inputs )
+-
+         if options[:parameter_values]
+             @inputs.keys.each do |name|
+                 # Don't let parameter name pollution from an old audit of an
+@@ -186,11 +185,17 @@
+                 # that option.
+                 next if name == EXTRA_NAME
+                 next if immutables.include?( name )
+-
++                print_debug_level_2 "Input name: #{name}"
++                #create multi combi with input selected          
++                filled_in_inputs_keys = filled_in_inputs.keys
++                n_filled_in_inputs = filled_in_inputs_keys.length
++                combi_filled_in_inputs={}
++                if n_filled_in_inputs == 1
++                    print_debug_level_2 "COMBI -- number of param in query == 1"
++                    #not modify
+                 each_formatted_payload(
+                     payload, options[:format], filled_in_inputs[name]
+                 ) do |format, formatted_payload|
+-
+                     elem = create_and_yield_if_unique(
+                         generated, filled_in_inputs, payload, name,
+                         formatted_payload, format, &block
+@@ -207,6 +212,65 @@
+                     end
+                 end
+             end
++                if n_filled_in_inputs > 1
++                    print_debug_level_2 "COMBI -- number of param in query > 1"
++                    #first select name only
++                    combi_filled_in_inputs={}
++                    combi_filled_in_inputs[name]=filled_in_inputs[name]
++                    #create
++                    print_debug_level_2 "CREATE COMBI: #{combi_filled_in_inputs}"
++                    each_formatted_payload(
++                        payload, options[:format], combi_filled_in_inputs[name]
++                    ) do |format, formatted_payload|
++                        elem = create_and_yield_if_unique(
++                            generated, combi_filled_in_inputs, payload, name,
++                            formatted_payload, format, &block
++                        )
++                    
++                        next if !elem
++                    
++                        if options[:with_raw_payloads]
++                            yield_if_unique( elem.with_raw_payload, generated, &block )
++                        end
++                    
++                        if options[:with_both_http_methods]
++                            yield_if_unique( elem.switch_method, generated, &block )
++                        end
++                    end
++                    for i in 2..n_filled_in_inputs
++                        tmp_combis=filled_in_inputs_keys.combination(i).to_a
++                        for tmp_combi in tmp_combis
++                            if tmp_combi.include?(name)
++                                #keep combi and create
++                                combi_filled_in_inputs={}
++                                for name_combi in tmp_combi
++                                    combi_filled_in_inputs[name_combi]=filled_in_inputs[name_combi]
++                                end
++                                #CREATE
++                                print_debug_level_2 "CREATE COMBI: #{combi_filled_in_inputs}"
++                                each_formatted_payload(
++                                    payload, options[:format], combi_filled_in_inputs[name]
++                                ) do |format, formatted_payload|
++                                    elem = create_and_yield_if_unique(
++                                        generated, combi_filled_in_inputs, payload, name,
++                                        formatted_payload, format, &block
++                                    )
++                                
++                                    next if !elem
++                                
++                                    if options[:with_raw_payloads]
++                                        yield_if_unique( elem.with_raw_payload, generated, &block )
++                                    end
++                                
++                                    if options[:with_both_http_methods]
++                                        yield_if_unique( elem.switch_method, generated, &block )
++                                    end
++                                end
++                            end
++                        end
++                    end
++                end 
++            end
+         end
+ 
+         if options[:with_extra_parameter]
+@@ -387,9 +451,9 @@
+             print_debug_level_2 "Name not supported by #{audit_id}: #{input_name.inspect}"
+             return
+         end
+-
+         elem                      = self.dup.update( inputs )
+         elem.seed                 = seed
++        elem.inputs               = inputs
+         elem.affected_input_name  = input_name
+         elem.affected_input_value = input_value
+         elem.format               = format
+@@ -408,10 +472,8 @@
+                 []
+             )
+         )
+-
+         element = create_mutation( inputs, seed, input_name, input_value, format )
+         return if !element
+-
+         yield_if_unique( element, list, &block )
+         element
+     end

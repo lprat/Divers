@@ -1,0 +1,25 @@
+OSSIM
+
+Vous trouverez ci-dessous les différentes sources de code en relation avec l'article publié dans MISC numéro 62(Juil-Aout 2012) et 63(Sept-Oct 2012).
+Plugins
+
+    Reputation - Moniteur
+    BH-DNS - Détecteur
+    Horde - Détecteur
+    ModSecurity - Détecteur
+    OSSEC - Détecteur pour OSSEC par syslog
+
+Patch
+
+    pyinotify
+    framworkd OCS
+    Cross-Corrélation (a venir)
+    tcptrack 1.4.2 patch OSSIM tcptrack-1.4.2.patch.gz - http://www.rhythm.cx/~steve/devel/tcptrack/release/1.4.2/sou rce/tcptrack-1.4.2.tar.gz
+
+Directive
+Cross Corrélation Script
+
+    OSVBD - SNORT
+    OpenVas - SNORT
+
+

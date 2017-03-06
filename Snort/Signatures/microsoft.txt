@@ -1,0 +1,4 @@
+alert tcp any $HTTP_PORTS -> $HOME_NET any (msg:"Microsoft IE CSS Parsing Remote"; flow:to_client,established;  content:"Content-Type: text/css"; nocase; http_header; pcre:"/@import url((?P.+));[x20rnt]*@import url((?P=varx));[x20rnt]*@import url((?P=varx));[x20rnt]*@import url((?P=varx));/iB"; reference:bugtraq,45246; reference:url,http://www.exploit-db.com/exploits/15746/;  sid:2402832; rev:3;)
+alert tcp any $HTTP_PORTS -> $HOME_NET any (msg:"Microsoft 0day SVG RECT"; flow:to_client,established;  content:"<svg "; nocase; pcre:"/<svg [.\r\n]*>[.\r\n]*<rect [.\r\n]*transform=[.\r\n]*>[.\r\n]*</rect></svg>/iB"; reference:bugtraq,45246;  sid:2402835; rev:3;) 
+
+

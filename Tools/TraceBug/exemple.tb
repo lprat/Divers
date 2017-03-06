@@ -1,0 +1,29 @@
+REMOTE {
+
+        +OPTION=autotrace;
+        +FICHIERLOG="http-bug.log";
+        +PROG="/* bla *//usr/sbin/httpd";     // faire option +PID ...
+
+        CONNECTION {
+                IP="/* test */127.0.0.1";
+                PORT="80";
+                PROTOCOL=TCP; /* pour le moment y aurra que le TCP ... */
+                CONNECTOK;
+        }
+
+        ENVOIE {
+                char="GET /^overflow==4096(A)^\n\n";
+        }
+
+        CONNECTION {
+                RECONNECT;
+        }
+
+        ENVOIE {
+                char="GET /^fmt==10(%n)^\n\n";
+        }
+
+        CONNECTION {
+                CLOSE;
+        }
+}

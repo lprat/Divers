@@ -1,0 +1,12 @@
+--- dansguardian-2.10.1.1/src//FatController.cpp        2009-04-28 12:37:10.000000000 +0200
++++ dansguardian-2.10.1.1.new/src//FatController.cpp    2010-11-19 14:13:43.000000000 +0100
+@@ -1161,7 +1161,7 @@
+                                        }*/
+ 
+                                        builtline = utime + " " + duration + " " + ( (clienthost.length() > 0) ? clienthost : from) + " " + hitmiss + " " + ssize + " "
+-                                               + how + " " + where + " " + who + " " + hier + " " + mimetype ;
++                                               + how + " " + where + " " + who + " " + hier + " " + mimetype + " USERAGENT:" + (o.log_user_agent ? useragent : "-");
+                                        break;
+                                }
+                        case 2:
+

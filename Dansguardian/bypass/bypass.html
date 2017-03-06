@@ -1,0 +1,126 @@
+<HTML><HEAD><TITLE>PROXY ACCESS SECURITY</TITLE> 
+<style type="text/css">
+.popup_anchor div.popup{
+   visibility: hidden;
+   z-index: 10;
+   top: 0px;
+   left: 0px;
+   position: absolute;
+   background-color:white;
+   border-color:black;
+   border:solid;
+   overflow: auto;
+}
+
+span:hover.popup_anchor div.popup{
+   visibility: visible;
+   overflow: auto;
+}
+
+span .popup_anchor div:hover.popup{
+   visibility: visible;
+   overflow: auto;
+}
+</style>
+</HEAD><BODY>
+<script type="text/javascript">
+function soumettre(id)
+{
+if(document.formulaire.raison_db.value == "") {
+   alert("Veuillez entrer un motif de debloquage!");
+   document.formulaire.raison_db.focus();
+   return(false);
+  }
+if(document.formulaire.mail.value == "") {
+   alert("Veuillez entrer votre adresse email!");
+   document.formulaire.mail.focus();
+   return(false);
+  }
+ if(document.formulaire.mail.value.indexOf('@') == -1) {
+   alert("Ce n'est pas une adresse email valide!");
+   document.formulaire.mail.focus();
+   return(false);
+  }
+
+document.getElementById(id).target = 'formulaire';
+window.open('', 'formulaire','width=800,height=600');
+return(true);
+
+}
+
+function printIt()
+{
+//grab the div in the html w/o the header & footer text
+var content=document.getElementById('popupid');
+//open a blank window
+w=window.open('about:blank');
+//write content var html to the window
+w.document.open();
+w.document.write("<html>" + content.innerHTML);
+//write some javascript to make the newly opened window print itself.
+w.document.writeln("</html>");
+w.document.close();
+}
+</script>
+<span class='popup_anchor'><center><table width="300" border=1><tr><td><center>Cette page a &eacute;t&eacute; bloqu&eacute;e par le syst&egrave;me de s&eacute;curit&eacute;. Pour plus d'information, passer votre curseur de souris <a href="" onclick="javascript:printIt(); return false;" >ici</a></center></td></tr></tabl
+e></center>
+<div class='popup' id='popupid' >
+<small><small><em><a href="" onclick="javascript:printIt(); return false;" >Si vous visualisez mal ce message: cliquez ici</a></em></small></small>
+<H3><center>Site bloqu&eacute;: -URL-</center></h3><h4><center>(Votre adresse IP: -IP-)</center></h4><h5><center>Raison technique du blocage:<br>-REASONLOGGED-</center></H5>
+<br><tr><td><strong>
+<em>Vous avez &eacute;t&eacute; redirig&eacute; vers cette page parce que le site que vous avez essay&eacute; de visiter est connu pour h&eacute;berger
+ou distribuer des logiciels espions, virus ou d'autres formes de logiciels malveillants.
+<br>
+</em></strong><small>You have been redirected to this page because the website that you tried to visit has been known to harbor
+or distribute Spyware, Viruses or other forms of malicious software.</small>
+<br><br>
+
+<em>Le service des systemes d'information a mis en place des outils de surveillance et de supervision afin d'identifier tout 
+comportement anormal sur le r&eacute;seau.
+<br>
+Dans le cadre de notre politique de s&eacute;curit&eacute;, nous maintenons une liste de sites potentiellement dangereux pour aider &agrave; la protection et la stabilit&eacute; d
+e nos ressources informatiques. 
+Mais &eacute;galement, pour prot&eacute;ger les utilisateurs de divulguer des informations personnelles &agrave; des tiers qui pourrait &ecirc;tre utilis&eacute; &agrave; des fins
+ illicites telles que le spam ou fraude.
+<br></em>
+<small>As part of our Information Security Policy we maintain a listing of potentially harmful sites to assist in the protection and stability of our computing resources. This is 
+also do
+ne to protect users from divulging personal information to third parties where it could be used for illicit purposes such as Spam or Fraud.</small>
+<br><br>
+<em>Service Informatique</em>
+</td></tr>
+<hr><br>
+<center><em><font bgcolor="#3300ff">
+Si vous d&eacute;sirez malgr&eacute; tout acceder au site, vous le pouvez, mais nous ne serions &ecirc;tre tenus responsables d'&eacute;ventuels dommages:
+</font></em>
+<FORM method=post action="http://IP-De-VOTRE-SERVEUR-WEB/cgi-bin/dansguardian.pl">
+<INPUT TYPE=HIDDEN NAME="deniedurl" value="-URL-">
+<INPUT TYPE=HIDDEN NAME="ip" value="-IP-">
+<INPUT TYPE=HIDDEN NAME="reason" value="-REASONLOGGED-">
+<INPUT type="submit" value="J'accepte les conditions.">
+</FORM>
+<br>
+<em>
+Si vous pensez que l'acc&egrave;s &agrave; ce site web est primordiale, remplisser le formulaire ci-dessous.
+<br></em>
+<small>If you feel your access to this web site is a requirement, fill out the form below.</small>
+<br>
+<table width="300" border=1><tr><td>
+<center><FORM method=post action="http://IP-DE-VOTRE-SERVEUR-WEB/VOTRE-SCRIPT-ENVOI-MAIL" name="formulaire" id="formulaireID" onsubmit="return soumettre('formulaireID')">
+Raison de la demande:<br>
+<TEXTAREA rows="3" name="raison_db"></TEXTAREA>
+<br>
+<INPUT TYPE=HIDDEN NAME="DENIEDURL" value="-URL-">
+<INPUT TYPE=HIDDEN NAME="IPPROXY" value="Proxy3">
+<INPUT TYPE=HIDDEN NAME="IP" value="-IP-">
+<INPUT TYPE=HIDDEN NAME="REASON" value="-REASONLOGGED-">
+Votre mail:<INPUT TYPE=TEXT name="mail" VALUE="entrer votre mail">
+<br> 
+<INPUT type="submit" value="Envoyer">
+<br></FORM></center>
+</td></tr></table></center>
+</div>
+</span>
+<Center><a href="" onclick="javascript:printIt(); return false;" >Ou cliquez ici</a></Center>
+<center>SI INFORMATIQUE</center>
+ </BODY></HTML> 

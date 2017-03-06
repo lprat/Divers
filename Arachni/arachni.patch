@@ -1,0 +1,863 @@
+diff -aburN ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/arachni.gemspec system/gems/bundler/gems/arachni-9d51355a2564/arachni.gemspec
+--- ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/arachni.gemspec	2016-09-26 11:33:11.085359097 +0200
++++ system/gems/bundler/gems/arachni-9d51355a2564/arachni.gemspec	2016-09-26 11:35:42.853356000 +0200
+@@ -20,6 +20,7 @@
+   s.rdoc_options = ["--charset=UTF-8".freeze]
+   s.required_ruby_version = Gem::Requirement.new(">= 2.2.0".freeze)
+   s.rubygems_version = "2.6.6".freeze
++  s.add_dependency 'simhash'
+   s.summary = "Arachni is a feature-full, modular, high-performance Ruby framework aimed towards helping penetration testers and administrators evaluate the security of web applications.".freeze
+   s.test_files = ["spec/spec_helper.rb".freeze, "spec/components".freeze, "spec/components/reporters".freeze, "spec/components/reporters/marshal_spec.rb".freeze, "spec/components/reporters/ap_spec.rb".freeze, "spec/components/reporters/xml_spec.rb".freeze, "spec/components/reporters/json_spec.rb".freeze, "spec/components/reporters/yaml_spec.rb".freeze, "spec/components/reporters/html_spec.rb".freeze, "spec/components/reporters/txt_spec.rb".freeze, "spec/components/reporters/stdout_spec.rb".freeze, "spec/components/path_extractors".freeze, "spec/components/path_extractors/comments_spec.rb".freeze, "spec/components/path_extractors/links_spec.rb".freeze, "spec/components/path_extractors/meta_refresh_spec.rb".freeze, "spec/components/path_extractors/generic_spec.rb".freeze, "spec/components/path_extractors/areas_spec.rb".freeze, "spec/components/path_extractors/data_url_spec.rb".freeze, "spec/components/path_extractors/scripts_spec.rb".freeze, "spec/components/path_extractors/anchors_spec.rb".freeze, "spec/components/path_extractors/forms_spec.rb".freeze, "spec/components/path_extractors/frames_spec.rb".freeze, "spec/components/checks".freeze, "spec/components/checks/passive".freeze, "spec/components/checks/passive/common_files_spec.rb".freeze, "spec/components/checks/passive/backup_files_spec.rb".freeze, "spec/components/checks/passive/directory_listing_spec.rb".freeze, "spec/components/checks/passive/http_put_spec.rb".freeze, "spec/components/checks/passive/common_admin_interfaces_spec.rb".freeze, "spec/components/checks/passive/htaccess_limit_spec.rb".freeze, "spec/components/checks/passive/backdoors_spec.rb".freeze, "spec/components/checks/passive/backup_directories_spec.rb".freeze, "spec/components/checks/passive/common_directories_spec.rb".freeze, "spec/components/checks/passive/localstart_asp_spec.rb".freeze, "spec/components/checks/passive/allowed_methods_spec.rb".freeze, "spec/components/checks/passive/origin_spoof_access_restriction_bypass_spec.rb".freeze, "spec/components/checks/passive/interesting_responses_spec.rb".freeze, "spec/components/checks/passive/webdav_spec.rb".freeze, "spec/components/checks/passive/insecure_cross_domain_policy_headers_spec.rb".freeze, "spec/components/checks/passive/insecure_client_access_policy_spec.rb".freeze, "spec/components/checks/passive/insecure_cross_domain_policy_access_spec.rb".freeze, "spec/components/checks/passive/xst_spec.rb".freeze, "spec/components/checks/passive/grep".freeze, "spec/components/checks/passive/grep/emails_spec.rb".freeze, "spec/components/checks/passive/grep/mixed_resource_spec.rb".freeze, "spec/components/checks/passive/grep/cookie_set_for_parent_domain_spec.rb".freeze, "spec/components/checks/passive/grep/html_objects_spec.rb".freeze, "spec/components/checks/passive/grep/password_autocomplete_spec.rb".freeze, "spec/components/checks/passive/grep/unencrypted_password_forms_spec.rb".freeze, "spec/components/checks/passive/grep/x_frame_options_spec.rb".freeze, "spec/components/checks/passive/grep/credit_card_spec.rb".freeze, "spec/components/checks/passive/grep/cvs_svn_users_spec.rb".freeze, "spec/components/checks/passive/grep/captcha_spec.rb".freeze, "spec/components/checks/passive/grep/ssn_spec.rb".freeze, "spec/components/checks/passive/grep/private_ip_spec.rb".freeze, "spec/components/checks/passive/grep/form_upload_spec.rb".freeze, "spec/components/checks/passive/grep/http_only_cookies_spec.rb".freeze, "spec/components/checks/passive/grep/insecure_cookies_spec.rb".freeze, "spec/components/checks/passive/grep/hsts_spec.rb".freeze, "spec/components/checks/passive/grep/insecure_cors_policy_spec.rb".freeze, "spec/components/checks/active".freeze, "spec/components/checks/active/xss_event_spec.rb".freeze, "spec/components/checks/active/unvalidated_redirect_spec.rb".freeze, "spec/components/checks/active/sql_injection_timing_spec.rb".freeze, "spec/components/checks/active/ldap_injection_spec.rb".freeze, "spec/components/checks/active/sql_injection_spec.rb".freeze, "spec/components/checks/active/unvalidated_redirect_dom_spec.rb".freeze, "spec/components/checks/active/xss_script_context_spec.rb".freeze, "spec/components/checks/active/xpath_injection_spec.rb".freeze, "spec/components/checks/active/file_inclusion_spec.rb".freeze, "spec/components/checks/active/source_code_disclosure_spec.rb".freeze, "spec/components/checks/active/xss_path_spec.rb".freeze, "spec/components/checks/active/csrf_spec.rb".freeze, "spec/components/checks/active/no_sql_injection_differential_spec.rb".freeze, "spec/components/checks/active/xss_dom_spec.rb".freeze, "spec/components/checks/active/xss_dom_script_context_spec.rb".freeze, "spec/components/checks/active/no_sql_injection_spec.rb".freeze, "spec/components/checks/active/code_injection_timing_spec.rb".freeze, "spec/components/checks/active/path_traversal_spec.rb".freeze, "spec/components/checks/active/xss_spec.rb".freeze, "spec/components/checks/active/code_injection_spec.rb".freeze, "spec/components/checks/active/os_cmd_injection_spec.rb".freeze, "spec/components/checks/active/response_splitting_spec.rb".freeze, "spec/components/checks/active/session_fixation_spec.rb".freeze, "spec/components/checks/active/xss_tag_spec.rb".freeze, "spec/components/checks/active/xxe_spec.rb".freeze, "spec/components/checks/active/trainer_spec.rb".freeze, "spec/components/checks/active/sql_injection_differential_spec.rb".freeze, "spec/components/checks/active/os_cmd_injection_timing_spec.rb".freeze, "spec/components/checks/active/rfi_spec.rb".freeze, "spec/components/fingerprinters".freeze, "spec/components/fingerprinters/frameworks".freeze, "spec/components/fingerprinters/frameworks/cakephp_spec.rb".freeze, "spec/components/fingerprinters/frameworks/aspx_mvc_spec.rb".freeze, "spec/components/fingerprinters/frameworks/nette_spec.rb".freeze, "spec/components/fingerprinters/frameworks/rails_spec.rb".freeze, "spec/components/fingerprinters/frameworks/jsf_spec.rb".freeze, "spec/components/fingerprinters/frameworks/cherrypy_spec.rb".freeze, "spec/components/fingerprinters/frameworks/symphony_spec.rb".freeze, "spec/components/fingerprinters/frameworks/rack_spec.rb".freeze, "spec/components/fingerprinters/frameworks/django_spec.rb".freeze, "spec/components/fingerprinters/languages".freeze, "spec/components/fingerprinters/languages/php_spec.rb".freeze, "spec/components/fingerprinters/languages/java_spec.rb".freeze, "spec/components/fingerprinters/languages/asp_spec.rb".freeze, "spec/components/fingerprinters/languages/aspx_spec.rb".freeze, "spec/components/fingerprinters/languages/python_spec.rb".freeze, "spec/components/fingerprinters/languages/ruby.rb".freeze, "spec/components/fingerprinters/servers".freeze, "spec/components/fingerprinters/servers/jetty_spec.rb".freeze, "spec/components/fingerprinters/servers/tomcat_spec.rb".freeze, "spec/components/fingerprinters/servers/nginx_spec.rb".freeze, "spec/components/fingerprinters/servers/gunicorn_spec.rb".freeze, "spec/components/fingerprinters/servers/iis_spec.rb".freeze, "spec/components/fingerprinters/servers/apache_spec.rb".freeze, "spec/components/fingerprinters/os".freeze, "spec/components/fingerprinters/os/linux_spec.rb".freeze, "spec/components/fingerprinters/os/solaris_spec.rb".freeze, "spec/components/fingerprinters/os/bsd_spec.rb".freeze, "spec/components/fingerprinters/os/windows_spec.rb".freeze, "spec/components/fingerprinters/os/unix_spec.rb".freeze, "spec/components/plugins".freeze, "spec/components/plugins/autologin_spec.rb".freeze, "spec/components/plugins/script_spec.rb".freeze, "spec/components/plugins/vector_collector_spec.rb".freeze, "spec/components/plugins/healthmap_spec.rb".freeze, "spec/components/plugins/headers_collector_spec.rb".freeze, "spec/components/plugins/waf_detector_spec.rb".freeze, "spec/components/plugins/exec_spec.rb".freeze, "spec/components/plugins/http_dicattack_spec.rb".freeze, "spec/components/plugins/rate_limiter_spec.rb".freeze, "spec/components/plugins/form_dicattack_spec.rb".freeze, "spec/components/plugins/cookie_collector_spec.rb".freeze, "spec/components/plugins/restrict_to_dom_state_spec.rb".freeze, "spec/components/plugins/meta".freeze, "spec/components/plugins/meta/remedies".freeze, "spec/components/plugins/meta/remedies/discovery_spec.rb".freeze, "spec/components/plugins/meta/remedies/timing_attacks_spec.rb".freeze, "spec/components/plugins/meta/uniformity_spec.rb".freeze, "spec/components/plugins/login_script_spec.rb".freeze, "spec/components/plugins/autothrottle_spec.rb".freeze, "spec/components/plugins/content_types_spec.rb".freeze, "spec/components/plugins/uncommon_headers_spec.rb".freeze, "spec/components/plugins/vector_feed_spec.rb".freeze, "spec/components/plugins/webhook_notify_spec.rb".freeze, "spec/external".freeze, "spec/external/wavsep".freeze, "spec/external/wavsep/active".freeze, "spec/external/wavsep/active/unvalidated_redirect_spec.rb".freeze, "spec/external/wavsep/active/lfi_spec.rb".freeze, "spec/external/wavsep/active/obsolete_files_spec.rb".freeze, "spec/external/wavsep/active/xss_dom_spec.rb".freeze, "spec/external/wavsep/active/xss_spec.rb".freeze, "spec/external/wavsep/active/sqli_spec.rb".freeze, "spec/external/wavsep/active/rfi_spec.rb".freeze, "spec/external/wavsep/false_positives".freeze, "spec/external/wavsep/false_positives/unvalidated_redirect_spec.rb".freeze, "spec/external/wavsep/false_positives/lfi_spec.rb".freeze, "spec/external/wavsep/false_positives/obsolete_files_spec.rb".freeze, "spec/external/wavsep/false_positives/xss_spec.rb".freeze, "spec/external/wavsep/false_positives/sqli_spec.rb".freeze, "spec/external/wavsep/false_positives/rfi_spec.rb".freeze, "spec/arachni".freeze, "spec/arachni/page_spec.rb".freeze, "spec/arachni/framework".freeze, "spec/arachni/framework/parts".freeze, "spec/arachni/framework/parts/platform_spec.rb".freeze, "spec/arachni/framework/parts/state_spec.rb".freeze, "spec/arachni/framework/parts/report_spec.rb".freeze, "spec/arachni/framework/parts/audit_spec.rb".freeze, "spec/arachni/framework/parts/plugin_spec.rb".freeze, "spec/arachni/framework/parts/check_spec.rb".freeze, "spec/arachni/framework/parts/scope_spec.rb".freeze, "spec/arachni/framework/parts/data_spec.rb".freeze, "spec/arachni/framework/parts/browser_spec.rb".freeze, "spec/arachni/component".freeze, "spec/arachni/component/utilities_spec.rb".freeze, "spec/arachni/component/base_spec.rb".freeze, "spec/arachni/component/options".freeze, "spec/arachni/component/options/url_spec.rb".freeze, "spec/arachni/component/options/object_spec.rb".freeze, "spec/arachni/component/options/float_spec.rb".freeze, "spec/arachni/component/options/bool_spec.rb".freeze, "spec/arachni/component/options/port_spec.rb".freeze, "spec/arachni/component/options/string_spec.rb".freeze, "spec/arachni/component/options/address_spec.rb".freeze, "spec/arachni/component/options/path_spec.rb".freeze, "spec/arachni/component/options/base_spec.rb".freeze, "spec/arachni/component/options/int_spec.rb".freeze, "spec/arachni/component/options/multiple_choice_spec.rb".freeze, "spec/arachni/component/utilities_spec".freeze, "spec/arachni/component/utilities_spec/read_file.txt".freeze, "spec/arachni/component/manager_spec.rb".freeze, "spec/arachni/framework_spec.rb".freeze, "spec/arachni/data".freeze, "spec/arachni/data/framework".freeze, "spec/arachni/data/framework/rpc_spec.rb".freeze, "spec/arachni/data/framework_spec.rb".freeze, "spec/arachni/data/session_spec.rb".freeze, "spec/arachni/data/plugins_spec.rb".freeze, "spec/arachni/data/issues_spec.rb".freeze, "spec/arachni/uri".freeze, "spec/arachni/uri/scope_spec.rb".freeze, "spec/arachni/uri_spec.rb".freeze, "spec/arachni/options_spec.rb".freeze, "spec/arachni/state_spec.rb".freeze, "spec/arachni/utilities_spec.rb".freeze, "spec/arachni/report_spec.rb".freeze, "spec/arachni/issue_spec.rb".freeze, "spec/arachni/session_spec.rb".freeze, "spec/arachni/rest".freeze, "spec/arachni/rest/server_spec.rb".freeze, "spec/arachni/issue".freeze, "spec/arachni/issue/severity".freeze, "spec/arachni/issue/severity/base_spec.rb".freeze, "spec/arachni/issue/severity_spec.rb".freeze, "spec/arachni/typhoeus".freeze, "spec/arachni/typhoeus/hydra_spec.rb".freeze, "spec/arachni/check".freeze, "spec/arachni/check/base_spec.rb".freeze, "spec/arachni/check/manager_spec.rb".freeze, "spec/arachni/check/auditor_spec.rb".freeze, "spec/arachni/snapshot_spec.rb".freeze, "spec/arachni/plugin".freeze, "spec/arachni/plugin/base_spec.rb".freeze, "spec/arachni/plugin/manager_spec.rb".freeze, "spec/arachni/option_groups".freeze, "spec/arachni/option_groups/dispatcher_spec.rb".freeze, "spec/arachni/option_groups/rpc_spec.rb".freeze, "spec/arachni/option_groups/http_spec.rb".freeze, "spec/arachni/option_groups/datastore_spec.rb".freeze, "spec/arachni/option_groups/audit_spec.rb".freeze, "spec/arachni/option_groups/session_spec.rb".freeze, "spec/arachni/option_groups/paths_spec.rb".freeze, "spec/arachni/option_groups/snapshot_spec.rb".freeze, "spec/arachni/option_groups/input_spec.rb".freeze, "spec/arachni/option_groups/scope_spec.rb".freeze, "spec/arachni/option_groups/browser_cluster_spec.rb".freeze, "spec/arachni/option_groups/output_spec.rb".freeze, "spec/arachni/parser_spec.rb".freeze, "spec/arachni/rpc".freeze, "spec/arachni/rpc/client".freeze, "spec/arachni/rpc/client/dispatcher_spec.rb".freeze, "spec/arachni/rpc/client/base_spec.rb".freeze, "spec/arachni/rpc/client/instance_spec.rb".freeze, "spec/arachni/rpc/server".freeze, "spec/arachni/rpc/server/dispatcher_spec.rb".freeze, "spec/arachni/rpc/server/framework".freeze, "spec/arachni/rpc/server/framework/distributor_spec.rb".freeze, "spec/arachni/rpc/server/framework_spec.rb".freeze, "spec/arachni/rpc/server/dispatcher".freeze, "spec/arachni/rpc/server/dispatcher/service_spec.rb".freeze, "spec/arachni/rpc/server/dispatcher/node_spec.rb".freeze, "spec/arachni/rpc/server/framework_multi_spec.rb".freeze, "spec/arachni/rpc/server/active_options_spec.rb".freeze, "spec/arachni/rpc/server/base_spec.rb".freeze, "spec/arachni/rpc/server/plugin".freeze, "spec/arachni/rpc/server/plugin/manager_spec.rb".freeze, "spec/arachni/rpc/server/checks".freeze, "spec/arachni/rpc/server/checks/manager_spec.rb".freeze, "spec/arachni/rpc/server/output_spec.rb".freeze, "spec/arachni/rpc/server/instance_spec.rb".freeze, "spec/arachni/error_spec.rb".freeze, "spec/arachni/scope_spec.rb".freeze, "spec/arachni/platform".freeze, "spec/arachni/platform/list_spec.rb".freeze, "spec/arachni/platform/fingerprinter_spec.rb".freeze, "spec/arachni/platform/manager_spec.rb".freeze, "spec/arachni/reporter".freeze, "spec/arachni/reporter/options_spec.rb".freeze, "spec/arachni/reporter/base_spec.rb".freeze, "spec/arachni/reporter/manager_spec.rb".freeze, "spec/arachni/browser_cluster_spec.rb".freeze, "spec/arachni/ruby".freeze, "spec/arachni/ruby/array_spec.rb".freeze, "spec/arachni/ruby/object_spec.rb".freeze, "spec/arachni/ruby/string_spec.rb".freeze, "spec/arachni/ruby/webrick_spec.rb".freeze, "spec/arachni/ruby/hash_spec.rb".freeze, "spec/arachni/ruby/set_spec.rb".freeze, "spec/arachni/state".freeze, "spec/arachni/state/framework".freeze, "spec/arachni/state/framework/rpc_spec.rb".freeze, "spec/arachni/state/http_spec.rb".freeze, "spec/arachni/state/framework_spec.rb".freeze, "spec/arachni/state/options_spec.rb".freeze, "spec/arachni/state/audit_spec.rb".freeze, "spec/arachni/state/plugins_spec.rb".freeze, "spec/arachni/state/element_filter_spec.rb".freeze, "spec/arachni/trainer_spec.rb".freeze, "spec/arachni/http".freeze, "spec/arachni/http/client".freeze, "spec/arachni/http/client/dynamic_404_handlers_spec.rb".freeze, "spec/arachni/http/cookie_jar_spec.rb".freeze, "spec/arachni/http/response".freeze, "spec/arachni/http/response/scope_spec.rb".freeze, "spec/arachni/http/proxy_server_spec.rb".freeze, "spec/arachni/http/request_spec.rb".freeze, "spec/arachni/http/message_spec.rb".freeze, "spec/arachni/http/headers_spec.rb".freeze, "spec/arachni/http/response_spec.rb".freeze, "spec/arachni/http/client_spec.rb".freeze, "spec/arachni/data_spec.rb".freeze, "spec/arachni/browser".freeze, "spec/arachni/browser/javascript_spec.rb".freeze, "spec/arachni/browser/javascript".freeze, "spec/arachni/browser/javascript/dom_monitor_spec.rb".freeze, "spec/arachni/browser/javascript/taint_tracer_spec.rb".freeze, "spec/arachni/browser/javascript/polyfills_spec.rb".freeze, "spec/arachni/browser/javascript/proxy".freeze, "spec/arachni/browser/javascript/proxy/stub_spec.rb".freeze, "spec/arachni/browser/javascript/taint_tracer".freeze, "spec/arachni/browser/javascript/taint_tracer/frame".freeze, "spec/arachni/browser/javascript/taint_tracer/frame/called_function_spec.rb".freeze, "spec/arachni/browser/javascript/taint_tracer/frame_spec.rb".freeze, "spec/arachni/browser/javascript/taint_tracer/sink".freeze, "spec/arachni/browser/javascript/taint_tracer/sink/data_flow_spec.rb".freeze, "spec/arachni/browser/javascript/taint_tracer/sink/execution_flow_spec.rb".freeze, "spec/arachni/browser/javascript/proxy_spec.rb".freeze, "spec/arachni/browser/element_locator_spec.rb".freeze, "spec/arachni/element".freeze, "spec/arachni/element/generic_dom_spec.rb".freeze, "spec/arachni/element/link_template".freeze, "spec/arachni/element/link_template/dom_spec.rb".freeze, "spec/arachni/element/link".freeze, "spec/arachni/element/link/dom_spec.rb".freeze, "spec/arachni/element/ui_form_spec.rb".freeze, "spec/arachni/element/cookie".freeze, "spec/arachni/element/cookie/dom_spec.rb".freeze, "spec/arachni/element/form_spec.rb".freeze, "spec/arachni/element/ui_form".freeze, "spec/arachni/element/ui_form/dom_spec.rb".freeze, "spec/arachni/element/form".freeze, "spec/arachni/element/form/dom_spec.rb".freeze, "spec/arachni/element/header_spec.rb".freeze, "spec/arachni/element/link_spec.rb".freeze, "spec/arachni/element/capabilities".freeze, "spec/arachni/element/capabilities/analyzable".freeze, "spec/arachni/element/capabilities/analyzable/differential_spec.rb".freeze, "spec/arachni/element/capabilities/analyzable/timeout_spec.rb".freeze, "spec/arachni/element/capabilities/analyzable/signature_spec.rb".freeze, "spec/arachni/element/capabilities/with_scope".freeze, "spec/arachni/element/capabilities/with_scope/scope_spec.rb".freeze, "spec/arachni/element/link_template_spec.rb".freeze, "spec/arachni/element/path_spec.rb".freeze, "spec/arachni/element/xml_spec.rb".freeze, "spec/arachni/element/body_spec.rb".freeze, "spec/arachni/element/json_spec.rb".freeze, "spec/arachni/element/cookie_spec.rb".freeze, "spec/arachni/element/ui_input".freeze, "spec/arachni/element/ui_input/dom_spec.rb".freeze, "spec/arachni/element/server_spec.rb".freeze, "spec/arachni/element/ui_input_spec.rb".freeze, "spec/arachni/page".freeze, "spec/arachni/page/dom".freeze, "spec/arachni/page/dom/transition_spec.rb".freeze, "spec/arachni/page/scope_spec.rb".freeze, "spec/arachni/page/dom_spec.rb".freeze, "spec/arachni/browser_spec.rb".freeze, "spec/arachni/support".freeze, "spec/arachni/support/glob_spec.rb".freeze, "spec/arachni/support/crypto".freeze, "spec/arachni/support/crypto/rsa_aes_cbc_spec.rb".freeze, "spec/arachni/support/database".freeze, "spec/arachni/support/database/queue_spec.rb".freeze, "spec/arachni/support/database/hash_spec.rb".freeze, "spec/arachni/support/buffer".freeze, "spec/arachni/support/buffer/autoflush_spec.rb".freeze, "spec/arachni/support/buffer/base_spec.rb".freeze, "spec/arachni/support/mixins".freeze, "spec/arachni/support/mixins/observable_spec.rb".freeze, "spec/arachni/support/cache".freeze, "spec/arachni/support/cache/least_recently_pushed_spec.rb".freeze, "spec/arachni/support/cache/random_replacement_spec.rb".freeze, "spec/arachni/support/cache/least_recently_used_spec.rb".freeze, "spec/arachni/support/cache/preference_spec.rb".freeze, "spec/arachni/support/cache/least_cost_replacement_spec.rb".freeze, "spec/arachni/support/lookup".freeze, "spec/arachni/support/lookup/hash_set_spec.rb".freeze, "spec/arachni/support/lookup/moolb_spec.rb".freeze, "spec/arachni/support/signature_spec.rb".freeze, "spec/arachni/element_filter_spec.rb".freeze, "spec/arachni/browser_cluster".freeze, "spec/arachni/browser_cluster/job_spec.rb".freeze, "spec/arachni/browser_cluster/jobs".freeze, "spec/arachni/browser_cluster/jobs/dom_exploration".freeze, "spec/arachni/browser_cluster/jobs/dom_exploration/event_trigger".freeze, "spec/arachni/browser_cluster/jobs/dom_exploration/event_trigger/result_spec.rb".freeze, "spec/arachni/browser_cluster/jobs/dom_exploration/result_spec.rb".freeze, "spec/arachni/browser_cluster/jobs/dom_exploration/event_trigger_spec.rb".freeze, "spec/arachni/browser_cluster/jobs/taint_tracer_spec.rb".freeze, "spec/arachni/browser_cluster/jobs/dom_exploration_spec.rb".freeze, "spec/arachni/browser_cluster/job".freeze, "spec/arachni/browser_cluster/job/result_spec.rb".freeze, "spec/arachni/browser_cluster/worker_spec.rb".freeze, "spec/support".freeze, "spec/support/fixtures".freeze, "spec/support/fixtures/services".freeze, "spec/support/fixtures/services/echo.rb".freeze, "spec/support/fixtures/executables".freeze, "spec/support/fixtures/executables/node.rb".freeze, "spec/support/fixtures/reporters".freeze, "spec/support/fixtures/reporters/manager_spec".freeze, "spec/support/fixtures/reporters/manager_spec/error.rb".freeze, "spec/support/fixtures/reporters/manager_spec/foo.rb".freeze, "spec/support/fixtures/reporters/manager_spec/afr.rb".freeze, "spec/support/fixtures/reporters/base_spec".freeze, "spec/support/fixtures/reporters/base_spec/with_outfile.rb".freeze, "spec/support/fixtures/reporters/base_spec/with_formatters.rb".freeze, "spec/support/fixtures/reporters/base_spec/without_outfile.rb".freeze, "spec/support/fixtures/reporters/base_spec/plugin_formatters".freeze, "spec/support/fixtures/reporters/base_spec/plugin_formatters/with_formatters".freeze, "spec/support/fixtures/reporters/base_spec/plugin_formatters/with_formatters/foobar.rb".freeze, "spec/support/fixtures/wait_check".freeze, "spec/support/fixtures/wait_check/wait.rb".freeze, "spec/support/fixtures/cookies.txt".freeze, "spec/support/fixtures/signature_check".freeze, "spec/support/fixtures/signature_check/signature.rb".freeze, "spec/support/fixtures/empty".freeze, "spec/support/fixtures/empty/placeholder".freeze, "spec/support/fixtures/rescan.afr.tpl".freeze, "spec/support/fixtures/check_with_invalid_platforms".freeze, "spec/support/fixtures/check_with_invalid_platforms/with_invalid_platforms.rb".freeze, "spec/support/fixtures/passwords.txt".freeze, "spec/support/fixtures/option_groups".freeze, "spec/support/fixtures/option_groups/input.yml".freeze, "spec/support/fixtures/script_plugin.rb".freeze, "spec/support/fixtures/run_check".freeze, "spec/support/fixtures/run_check/headers.rb".freeze, "spec/support/fixtures/run_check/body.rb".freeze, "spec/support/fixtures/run_check/empty.rb".freeze, "spec/support/fixtures/run_check/links.rb".freeze, "spec/support/fixtures/run_check/path.rb".freeze, "spec/support/fixtures/run_check/flch.rb".freeze, "spec/support/fixtures/run_check/nil.rb".freeze, "spec/support/fixtures/run_check/forms.rb".freeze, "spec/support/fixtures/run_check/server.rb".freeze, "spec/support/fixtures/run_check/cookies.rb".freeze, "spec/support/fixtures/checks".freeze, "spec/support/fixtures/checks/test3.rb".freeze, "spec/support/fixtures/checks/test.rb".freeze, "spec/support/fixtures/checks/test2.rb".freeze, "spec/support/fixtures/usernames.txt".freeze, "spec/support/fixtures/report.afr".freeze, "spec/support/fixtures/plugins_with_priorities".freeze, "spec/support/fixtures/plugins_with_priorities/p222.rb".freeze, "spec/support/fixtures/plugins_with_priorities/p_nil2.rb".freeze, "spec/support/fixtures/plugins_with_priorities/p2.rb".freeze, "spec/support/fixtures/plugins_with_priorities/p0.rb".freeze, "spec/support/fixtures/plugins_with_priorities/p_nil.rb".freeze, "spec/support/fixtures/plugins_with_priorities/p22.rb".freeze, "spec/support/fixtures/plugins_with_priorities/p1.rb".freeze, "spec/support/fixtures/plugins_with_priorities/p00.rb".freeze, "spec/support/fixtures/fingerprinters".freeze, "spec/support/fixtures/fingerprinters/test.rb".freeze, "spec/support/fixtures/plugins".freeze, "spec/support/fixtures/plugins/suspendable.rb".freeze, "spec/support/fixtures/plugins/with_options.rb".freeze, "spec/support/fixtures/plugins/defaults".freeze, "spec/support/fixtures/plugins/defaults/default.rb".freeze, "spec/support/fixtures/plugins/wait.rb".freeze, "spec/support/fixtures/plugins/bad.rb".freeze, "spec/support/fixtures/plugins/distributable.rb".freeze, "spec/support/fixtures/plugins/loop.rb".freeze, "spec/support/logs".freeze, "spec/support/logs/placeholder".freeze, "spec/support/lib".freeze, "spec/support/lib/web_server_dispatcher.rb".freeze, "spec/support/lib/web_server_manager.rb".freeze, "spec/support/lib/web_server_client.rb".freeze, "spec/support/lib/factory.rb".freeze, "spec/support/servers".freeze, "spec/support/servers/arachni".freeze, "spec/support/servers/arachni/parser.rb".freeze, "spec/support/servers/arachni/check".freeze, "spec/support/servers/arachni/check/auditor.rb".freeze, "spec/support/servers/arachni/browser.rb".freeze, "spec/support/servers/arachni/rpc".freeze, "spec/support/servers/arachni/rpc/server".freeze, "spec/support/servers/arachni/rpc/server/framework_multi.rb".freeze, "spec/support/servers/arachni/browser_https.rb".freeze, "spec/support/servers/arachni/trainer.rb".freeze, "spec/support/servers/arachni/http".freeze, "spec/support/servers/arachni/http/proxy_server_https.rb".freeze, "spec/support/servers/arachni/http/client".freeze, "spec/support/servers/arachni/http/client/dynamic_404_handler.rb".freeze, "spec/support/servers/arachni/http/proxy_server.rb".freeze, "spec/support/servers/arachni/http/client.rb".freeze, "spec/support/servers/arachni/session.rb".freeze, "spec/support/servers/arachni/browser".freeze, "spec/support/servers/arachni/browser/javascript".freeze, "spec/support/servers/arachni/browser/javascript/taint_tracer.rb".freeze, "spec/support/servers/arachni/browser/javascript/jquery.cookie.js".freeze, "spec/support/servers/arachni/browser/javascript/jquery-2.0.3.js".freeze, "spec/support/servers/arachni/browser/javascript/angular-route.js".freeze, "spec/support/servers/arachni/browser/javascript/proxy.rb".freeze, "spec/support/servers/arachni/browser/javascript/angular-1.2.8.js".freeze, "spec/support/servers/arachni/browser/javascript/dom_monitor.rb".freeze, "spec/support/servers/arachni/browser/javascript.rb".freeze, "spec/support/servers/arachni/framework.rb".freeze, "spec/support/servers/arachni/element".freeze, "spec/support/servers/arachni/element/link_template".freeze, "spec/support/servers/arachni/element/link_template/link_template_dom.rb".freeze, "spec/support/servers/arachni/element/body.rb".freeze, "spec/support/servers/arachni/element/link".freeze, "spec/support/servers/arachni/element/link/link_dom.rb".freeze, "spec/support/servers/arachni/element/cookie".freeze, "spec/support/servers/arachni/element/cookie/cookie_dom.rb".freeze, "spec/support/servers/arachni/element/ui_form".freeze, "spec/support/servers/arachni/element/ui_form/ui_form_dom.rb".freeze, "spec/support/servers/arachni/element/form".freeze, "spec/support/servers/arachni/element/form/form_dom.rb".freeze, "spec/support/servers/arachni/element/capabilities".freeze, "spec/support/servers/arachni/element/capabilities/analyzable".freeze, "spec/support/servers/arachni/element/capabilities/analyzable/timeout.rb".freeze, "spec/support/servers/arachni/element/capabilities/analyzable/signature.rb".freeze, "spec/support/servers/arachni/element/capabilities/analyzable/differential.rb".freeze, "spec/support/servers/arachni/element/cookie.rb".freeze, "spec/support/servers/arachni/element/link.rb".freeze, "spec/support/servers/arachni/element/header.rb".freeze, "spec/support/servers/arachni/element/form.rb".freeze, "spec/support/servers/arachni/element/xml.rb".freeze, "spec/support/servers/arachni/element/link_template.rb".freeze, "spec/support/servers/arachni/element/json.rb".freeze, "spec/support/servers/arachni/element/input".freeze, "spec/support/servers/arachni/element/input/input_dom.rb".freeze, "spec/support/servers/arachni/page".freeze, "spec/support/servers/arachni/page/page_dom.rb".freeze, "spec/support/servers/arachni/browser_cluster".freeze, "spec/support/servers/arachni/browser_cluster/jobs".freeze, "spec/support/servers/arachni/browser_cluster/jobs/event_trigger.rb".freeze, "spec/support/servers/checks".freeze, "spec/support/servers/checks/check_server.rb".freeze, "spec/support/servers/checks/passive".freeze, "spec/support/servers/checks/passive/common_files.rb".freeze, "spec/support/servers/checks/passive/backup_files.rb".freeze, "spec/support/servers/checks/passive/backup_directories.rb".freeze, "spec/support/servers/checks/passive/common_directories.rb".freeze, "spec/support/servers/checks/passive/interesting_responses.rb".freeze, "spec/support/servers/checks/passive/insecure_client_access_policy.rb".freeze, "spec/support/servers/checks/passive/http_put.rb".freeze, "spec/support/servers/checks/passive/origin_spoof_access_restriction_bypass.rb".freeze, "spec/support/servers/checks/passive/localstart_asp.rb".freeze, "spec/support/servers/checks/passive/common_admin_interfaces.rb".freeze, "spec/support/servers/checks/passive/insecure_cross_domain_policy_access.rb".freeze, "spec/support/servers/checks/passive/backdoors.rb".freeze, "spec/support/servers/checks/passive/htaccess_limit.rb".freeze, "spec/support/servers/checks/passive/insecure_cross_domain_policy_headers.rb".freeze, "spec/support/servers/checks/passive/allowed_methods.rb".freeze, "spec/support/servers/checks/passive/webdav.rb".freeze, "spec/support/servers/checks/passive/directory_listing.rb".freeze, "spec/support/servers/checks/passive/grep".freeze, "spec/support/servers/checks/passive/grep/cvs_svn_users.rb".freeze, "spec/support/servers/checks/passive/grep/captcha.rb".freeze, "spec/support/servers/checks/passive/grep/private_ip.rb".freeze, "spec/support/servers/checks/passive/grep/insecure_cookies_https.rb".freeze, "spec/support/servers/checks/passive/grep/html_objects.rb".freeze, "spec/support/servers/checks/passive/grep/unencrypted_password_forms.rb".freeze, "spec/support/servers/checks/passive/grep/http_only_cookies.rb".freeze, "spec/support/servers/checks/passive/grep/credit_card.rb".freeze, "spec/support/servers/checks/passive/grep/x_frame_options.rb".freeze, "spec/support/servers/checks/passive/grep/ssn.rb".freeze, "spec/support/servers/checks/passive/grep/cookie_set_for_parent_domain.rb".freeze, "spec/support/servers/checks/passive/grep/password_autocomplete.rb".freeze, "spec/support/servers/checks/passive/grep/form_upload.rb".freeze, "spec/support/servers/checks/passive/grep/emails.rb".freeze, "spec/support/servers/checks/passive/grep/mixed_resource_https.rb".freeze, "spec/support/servers/checks/passive/grep/insecure_cors_policy.rb".freeze, "spec/support/servers/checks/passive/grep/hsts_https.rb".freeze, "spec/support/servers/checks/passive/xst.rb".freeze, "spec/support/servers/checks/active".freeze, "spec/support/servers/checks/active/session_fixation.rb".freeze, "spec/support/servers/checks/active/sql_injection.rb".freeze, "spec/support/servers/checks/active/xss_dom.rb".freeze, "spec/support/servers/checks/active/xxe.rb".freeze, "spec/support/servers/checks/active/no_sql_injection".freeze, "spec/support/servers/checks/active/no_sql_injection/mongodb".freeze, "spec/support/servers/checks/active/xss_tag.rb".freeze, "spec/support/servers/checks/active/path_traversal.rb".freeze, "spec/support/servers/checks/active/file_inclusion.rb".freeze, "spec/support/servers/checks/active/xpath_injection.rb".freeze, "spec/support/servers/checks/active/xss_path.rb".freeze, "spec/support/servers/checks/active/sql_injection_timing.rb".freeze, "spec/support/servers/checks/active/rfi.rb".freeze, "spec/support/servers/checks/active/sql_injection".freeze, "spec/support/servers/checks/active/sql_injection/hsqldb".freeze, "spec/support/servers/checks/active/sql_injection/frontbase".freeze, "spec/support/servers/checks/active/sql_injection/access".freeze, "spec/support/servers/checks/active/sql_injection/emc".freeze, "spec/support/servers/checks/active/sql_injection/sybase".freeze, "spec/support/servers/checks/active/sql_injection/db2".freeze, "spec/support/servers/checks/active/sql_injection/mssql".freeze, "spec/support/servers/checks/active/sql_injection/informix".freeze, "spec/support/servers/checks/active/sql_injection/oracle".freeze, "spec/support/servers/checks/active/sql_injection/mysql".freeze, "spec/support/servers/checks/active/sql_injection/firebird".freeze, "spec/support/servers/checks/active/sql_injection/java".freeze, "spec/support/servers/checks/active/sql_injection/pgsql".freeze, "spec/support/servers/checks/active/sql_injection/sqlite".freeze, "spec/support/servers/checks/active/sql_injection/maxdb".freeze, "spec/support/servers/checks/active/sql_injection/jdbc".freeze, "spec/support/servers/checks/active/sql_injection/interbase".freeze, "spec/support/servers/checks/active/sql_injection/coldfusion".freeze, "spec/support/servers/checks/active/sql_injection/ingres".freeze, "spec/support/servers/checks/active/xss.rb".freeze, "spec/support/servers/checks/active/no_sql_injection_differential.rb".freeze, "spec/support/servers/checks/active/sql_injection_differential.rb".freeze, "spec/support/servers/checks/active/xpath_injection".freeze, "spec/support/servers/checks/active/xpath_injection/general".freeze, "spec/support/servers/checks/active/xpath_injection/php".freeze, "spec/support/servers/checks/active/xpath_injection/libxml2".freeze, "spec/support/servers/checks/active/xpath_injection/java".freeze, "spec/support/servers/checks/active/xpath_injection/dotnet".freeze, "spec/support/servers/checks/active/code_injection_timing.rb".freeze, "spec/support/servers/checks/active/csrf.rb".freeze, "spec/support/servers/checks/active/xss_script_context.rb".freeze, "spec/support/servers/checks/active/response_splitting.rb".freeze, "spec/support/servers/checks/active/source_code_disclosure.rb".freeze, "spec/support/servers/checks/active/code_injection.rb".freeze, "spec/support/servers/checks/active/os_cmd_injection.rb".freeze, "spec/support/servers/checks/active/ldap_injection.rb".freeze, "spec/support/servers/checks/active/xss_event.rb".freeze, "spec/support/servers/checks/active/os_cmd_injection_timing.rb".freeze, "spec/support/servers/checks/active/xss_dom_script_context.rb".freeze, "spec/support/servers/checks/active/unvalidated_redirect_dom.rb".freeze, "spec/support/servers/checks/active/unvalidated_redirect.rb".freeze, "spec/support/servers/checks/active/no_sql_injection.rb".freeze, "spec/support/servers/checks/active/trainer_check.rb".freeze, "spec/support/servers/plugins".freeze, "spec/support/servers/plugins/uncommon_headers.rb".freeze, "spec/support/servers/plugins/webhook_notify.rb".freeze, "spec/support/servers/plugins/http_dicattack_unprotected.rb".freeze, "spec/support/servers/plugins/cookie_collector.rb".freeze, "spec/support/servers/plugins/http_dicattack.rb".freeze, "spec/support/servers/plugins/waf_detector.rb".freeze, "spec/support/servers/plugins/restrict_to_dom_state.rb".freeze, "spec/support/servers/plugins/content_types.rb".freeze, "spec/support/servers/plugins/rate_limiter.rb".freeze, "spec/support/servers/plugins/autologin.rb".freeze, "spec/support/servers/plugins/meta".freeze, "spec/support/servers/plugins/meta/remedies".freeze, "spec/support/servers/plugins/meta/remedies/timing_attacks.rb".freeze, "spec/support/servers/plugins/meta/remedies/discovery.rb".freeze, "spec/support/servers/plugins/healthmap.rb".freeze, "spec/support/servers/plugins/headers_collector.rb".freeze, "spec/support/servers/plugins/autothrottle.rb".freeze, "spec/support/servers/plugins/form_dicattack.rb".freeze, "spec/support/servers/plugins/login_script.rb".freeze, "spec/support/servers/plugins/http_dicattack_secure.rb".freeze, "spec/support/servers/plugins/vector_collector.rb".freeze, "spec/support/factories".freeze, "spec/support/factories/page.rb".freeze, "spec/support/factories/issue.rb".freeze, "spec/support/factories/scan_report.rb".freeze, "spec/support/factories/vector.rb".freeze, "spec/support/factories/http".freeze, "spec/support/factories/http/response.rb".freeze, "spec/support/factories/http/request.rb".freeze, "spec/support/factories/browser".freeze, "spec/support/factories/browser/javascript".freeze, "spec/support/factories/browser/javascript/taint_tracer".freeze, "spec/support/factories/browser/javascript/taint_tracer/frame".freeze, "spec/support/factories/browser/javascript/taint_tracer/frame/called_function.rb".freeze, "spec/support/factories/browser/javascript/taint_tracer/sink".freeze, "spec/support/factories/browser/javascript/taint_tracer/sink/execution_flow.rb".freeze, "spec/support/factories/browser/javascript/taint_tracer/sink/data_flow.rb".freeze, "spec/support/factories/browser/javascript/taint_tracer/frame.rb".freeze, "spec/support/factories/element".freeze, "spec/support/factories/element/body.rb".freeze, "spec/support/factories/element/path.rb".freeze, "spec/support/factories/element/cookie.rb".freeze, "spec/support/factories/element/link.rb".freeze, "spec/support/factories/element/header.rb".freeze, "spec/support/factories/element/generic_dom.rb".freeze, "spec/support/factories/element/form.rb".freeze, "spec/support/factories/element/server.rb".freeze, "spec/support/factories/element/xml.rb".freeze, "spec/support/factories/element/link_template.rb".freeze, "spec/support/factories/element/ui_form.rb".freeze, "spec/support/factories/element/ui_input.rb".freeze, "spec/support/factories/element/json.rb".freeze, "spec/support/factories/page".freeze, "spec/support/factories/page/dom.rb".freeze, "spec/support/factories/page/dom".freeze, "spec/support/factories/page/dom/transition.rb".freeze, "spec/support/factories/browser_cluster".freeze, "spec/support/factories/browser_cluster/job.rb".freeze, "spec/support/shared".freeze, "spec/support/shared/option_group.rb".freeze, "spec/support/shared/fingerprinter.rb".freeze, "spec/support/shared/component.rb".freeze, "spec/support/shared/component".freeze, "spec/support/shared/component/options".freeze, "spec/support/shared/component/options/base.rb".freeze, "spec/support/shared/external".freeze, "spec/support/shared/external/wavsep.rb".freeze, "spec/support/shared/path_extractor.rb".freeze, "spec/support/shared/check.rb".freeze, "spec/support/shared/plugin.rb".freeze, "spec/support/shared/reporter.rb".freeze, "spec/support/shared/http".freeze, "spec/support/shared/http/message.rb".freeze, "spec/support/shared/browser".freeze, "spec/support/shared/browser/javascript".freeze, "spec/support/shared/browser/javascript/taint_tracer".freeze, "spec/support/shared/browser/javascript/taint_tracer/sink".freeze, "spec/support/shared/browser/javascript/taint_tracer/sink/base.rb".freeze, "spec/support/shared/framework.rb".freeze, "spec/support/shared/element".freeze, "spec/support/shared/element/dom.rb".freeze, "spec/support/shared/element/base.rb".freeze, "spec/support/shared/element/dom".freeze, "spec/support/shared/element/dom/locatable.rb".freeze, "spec/support/shared/element/dom/submittable.rb".freeze, "spec/support/shared/element/dom/inputtable.rb".freeze, "spec/support/shared/element/dom/mutable.rb".freeze, "spec/support/shared/element/dom/auditable.rb".freeze, "spec/support/shared/element/capabilities".freeze, "spec/support/shared/element/capabilities/with_dom.rb".freeze, "spec/support/shared/element/capabilities/dom_only.rb".freeze, "spec/support/shared/element/capabilities/with_scope.rb".freeze, "spec/support/shared/element/capabilities/submittable.rb".freeze, "spec/support/shared/element/capabilities/inputtable.rb".freeze, "spec/support/shared/element/capabilities/refreshable.rb".freeze, "spec/support/shared/element/capabilities/with_auditor.rb".freeze, "spec/support/shared/element/capabilities/mutable.rb".freeze, "spec/support/shared/element/capabilities/with_node.rb".freeze, "spec/support/shared/element/capabilities/with_source.rb".freeze, "spec/support/shared/element/capabilities/auditable".freeze, "spec/support/shared/element/capabilities/auditable/buffered.rb".freeze, "spec/support/shared/element/capabilities/auditable/line_buffered.rb".freeze, "spec/support/shared/element/capabilities/auditable.rb".freeze, "spec/support/shared/support".freeze, "spec/support/shared/support/cache.rb".freeze, "spec/support/shared/support/lookup.rb".freeze, "spec/support/helpers".freeze, "spec/support/helpers/resets.rb".freeze, "spec/support/helpers/misc.rb".freeze, "spec/support/helpers/auditor.rb".freeze, "spec/support/helpers/requires.rb".freeze, "spec/support/helpers/web_server.rb".freeze, "spec/support/helpers/request_helpers.rb".freeze, "spec/support/helpers/browser.rb".freeze, "spec/support/helpers/paths.rb".freeze, "spec/support/helpers/pages.rb".freeze, "spec/support/helpers/framework.rb".freeze, "spec/support/helpers/browser_cluster".freeze, "spec/support/helpers/browser_cluster/jobs".freeze, "spec/support/helpers/browser_cluster/jobs/taint_tracer.rb".freeze, "spec/support/pems".freeze, "spec/support/pems/cacert.pem".freeze, "spec/support/pems/client".freeze, "spec/support/pems/client/key.pem".freeze, "spec/support/pems/client/foo-cert.pem".freeze, "spec/support/pems/client/foo-key.pem".freeze, "spec/support/pems/client/cert.pem".freeze, "spec/support/pems/server".freeze, "spec/support/pems/server/key.pem".freeze, "spec/support/pems/server/cert.pem".freeze]
+ 
+diff -aburN ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/access_control.rb system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/access_control.rb
+--- ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/access_control.rb	1970-01-01 01:00:00.000000000 +0100
++++ system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/access_control.rb	2016-09-26 16:05:24.141025808 +0200
+@@ -0,0 +1,156 @@
++=begin
++    Copyright 2010-2016 Lionel PRAT <lionel.prat9@gmail.com>
++
++    This file is part of the Arachni Framework project and is subject to
++    redistribution and commercial restrictions. Please see the Arachni Framework
++    web site for more information on licensing and terms of use.
++=end
++
++# Verify acces control if you can acces to page when cookie is different
++#
++# Multi case: 
++#   - page acces user authentified 
++#   - page acces different profile authentified
++#   - page not accessible if identified (ask password lost, login, ...)
++#
++# @author Lionel PRAT <lionel.prat9@gmail.com>
++require 'simhash'
++
++class Arachni::Checks::Access_Control < Arachni::Check::Base
++
++    def run
++        print_status 'Verify acces control...'
++        print_status 'Simulating another user.'
++        print_status 'By default use cookie.txt, if empty use connect without cookie'
++        # parse cookie.txt
++        tmp_cookies = []
++        begin
++            File.open((Dir.pwd) + '/cookie.txt') do |fh|
++                fh.each_line do |linex|
++                    linex.delete!("\n")
++                    tmp_cookies.push(Element::Cookie.from_string(page.url,linex))
++                end
++            end
++        rescue
++            print_debug_level_2 "Error to open file cookie.txt not existe in current dir #{Dir.pwd}."
++            tmp_cookies = []
++        end
++        if tmp_cookies.length == 0
++           tmp_cookies = []
++        end
++        # request page without cookies, simulating a logged-out user
++        if tmp_cookies.empty?
++            print_info "Check control with cookie empty (because file cookie.txt not exist)."
++            tmp_cookie = Element::Cookie.from_string(page.url,"")
++            http.get( page.url, cookies: {}, cookie_jar: tmp_cookie ) do |res|
++                print_info "Check control access #{page.url} => #{res.to_page.request.headers}"
++                #code & timeout 
++                code_new = res.to_page.code #res.code #integer
++                ## simhash body content
++                #page with cookie modified
++                pbody_new = res.to_page.body.force_encoding('iso-8859-1').encode('utf-8') #string
++                pbody_new_len = res.to_page.body.length
++                #ptitle_new = res.to_page.title.force_encoding('iso-8859-1').encode('utf-8') #string
++                #page origine
++                pbody_ori = page.body.force_encoding('iso-8859-1').encode('utf-8') #string
++                pbody_ori_len = page.body.length
++                #ptitle_ori = page.title.force_encoding('iso-8859-1').encode('utf-8') #string
++                code_ori = page.code          
++                #+/- 20 poucent simhash distance
++                hashbit_title = 8
++                hashbit_body = 8
++                #d_new_title = ptitle_new.simhash(:hashbits => hashbit_title).to_s.chars.first(hashbit_title/4).join.to_i
++                #d_ori_title = ptitle_ori.simhash(:hashbits => hashbit_title).to_s.chars.first(hashbit_title/4).join.to_i
++                d_new_body = pbody_new.simhash(:hashbits => hashbit_body).to_s.chars.first(hashbit_body/4).join.to_i
++                d_ori_body = pbody_ori.simhash(:hashbits => hashbit_body).to_s.chars.first(hashbit_body/4).join.to_i
++                #hashbit: 8->0-255 16->0-65535 32-> ...
++                #choose hashbit by length of page
++                #check (hashbit/4) first digit identique: ex 8/4 = 2first bit SIMHASH_VALUE.to_s.chars.first(hashbit/4).join.to_i
++                if (code_new == code_ori) and (d_new_body == d_ori_body) #and (d_new_title == d_ori_title)
++                    #page identik or around value origin
++                    log_cookie( res, tmp_cookie, d_new_body)
++                end
++            end
++        else
++            for tmp_cookie in tmp_cookies
++                #page.cookie_jar
++                if !(page.cookie_jar === test_cookie)
++                    http.get( page.url, cookies: {}, cookie_jar: tmp_cookie ) do |res|
++                        print_info "Check control access #{page.url} => #{res.to_page.request.headers}"
++                        #code & timeout 
++                        code_new = res.to_page.code #res.code #integer
++                        ## simhash body content
++                        #page with cookie modified
++                        pbody_new = res.to_page.body.force_encoding('iso-8859-1').encode('utf-8') #string
++                        pbody_new_len = res.to_page.body.length
++                        #ptitle_new = res.to_page.title.force_encoding('iso-8859-1').encode('utf-8') #string
++                        #page origine
++                        pbody_ori = page.body.force_encoding('iso-8859-1').encode('utf-8') #string
++                        pbody_ori_len = page.body.length
++                        #ptitle_ori = page.title.force_encoding('iso-8859-1').encode('utf-8') #string
++                        code_ori = page.code          
++                        #+/- 20 poucent simhash distance
++                        hashbit_title = 8
++                        hashbit_body = 8
++                        #d_new_title = ptitle_new.simhash(:hashbits => hashbit_title).to_s.chars.first(hashbit_title/4).join.to_i
++                        #d_ori_title = ptitle_ori.simhash(:hashbits => hashbit_title).to_s.chars.first(hashbit_title/4).join.to_i
++                        d_new_body = pbody_new.simhash(:hashbits => hashbit_body).to_s.chars.first(hashbit_body/4).join.to_i
++                        d_ori_body = pbody_ori.simhash(:hashbits => hashbit_body).to_s.chars.first(hashbit_body/4).join.to_i
++                        #hashbit: 8->0-255 16->0-65535 32-> ...
++                        #choose hashbit by length of page
++                        #check (hashbit/4) first digit identique: ex 8/4 = 2first bit SIMHASH_VALUE.to_s.chars.first(hashbit/4).join.to_i
++                        if (code_new == code_ori) and (d_new_body == d_ori_body) #and (d_new_title == d_ori_title)
++                            #page identik or around value origin
++                            log_cookie( res,  tmp_cookie, d_new_body)
++                        end
++                    end
++                end
++            end
++        end
++    end
++
++    def log_cookie(res, cookie, d_new_body)
++        if audited?( "#{page.url}::#{cookie}::#{d_new_body}" )
++            print_info "Skipping already audited access control page with cookie '#{tmp_cookie}' at '#{page.url}'"
++            return
++        end
++
++        audited( "#{page.url}::#{cookie}::#{d_new_body}" )
++
++        log( 
++            vector: Element::Cookie.new(url: page.url), 
++            proof: "Page same hashbit with different cookie: #{d_new_body}" 
++        )
++        
++        print_ok "Found access control bypass at '#{page.url}'"
++    end
++
++    def self.info
++        {
++            name:        'Acces control',
++            description: %q{
++It uses differential analysis to determine which access control bypass possible.
++},
++            elements:    [ Element::Cookie ],
++            author:      'Lionel PRAT <lionel.prat9@gmail.com>',
++            version:     '0.0.1',
++
++            issue:       {
++                name:            %q{Acces control},
++                description:     %q{
++If access control bad implemented, it's possible bypass access.
++},
++                references:  {
++                    'SITE' => 'http://www.'
++                },
++                tags:            %w(acces control bypass),
++                cwe:             352,
++                severity:        Severity::HIGH,
++                remedy_guidance: %q{
++You must verify rigth access ressource in code.
++}
++            }
++        }
++    end
++
++end
+diff -aburN ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/overflow_timing.rb system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/overflow_timing.rb
+--- ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/overflow_timing.rb	1970-01-01 01:00:00.000000000 +0100
++++ system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/overflow_timing.rb	2016-09-26 11:39:23.513351497 +0200
+@@ -0,0 +1,62 @@
++=begin
++    Copyright 2010-2016 Lionel PRAT <lionel.prat9@gmail.com>
++
++    This file is part of the Arachni Framework project and is subject to
++    redistribution and commercial restrictions. Please see the Arachni Framework
++    web site for more information on licensing and terms of use.
++=end
++
++# Tries to inject overflow, if work, will cause crash process and timeout response
++#
++#
++# @author Lionel PRAT <lionel.prat9@gmail.com>
++#
++# @version 0.0.1
++#
++class Arachni::Checks::OverflowTiming < Arachni::Check::Base
++
++    prefer :overflow_injection
++
++    def self.payloads
++        @payloads ||= [ '\0' * 2056, "A" * 2056, '%ff' * 2056, "\n" * 2056 ]
++    end
++
++    def run
++        audit_timeout( self.class.payloads, format: [Format::STRAIGHT], timeout: 4000 )
++    end
++
++    def self.info
++        {
++            name:        'Overflow injection (timing)',
++            description: %q{
++Injects overflow whether or not the overflow was successful using
++a time delay.
++},
++            elements:    ELEMENTS_WITH_INPUTS,
++            author:      'Lionel PRAT <lionel.prat9@gmail.com>',
++            version:     '0.0.1',
++            
++            issue:       {
++                name:            %q{Code overflow (timing attack)},
++                description:     %q{
++Overflow occurs when the server takes untrusted code (ie. from the client)
++and executes it with memory limit.
++
++},
++                tags:            %w(overflow injection timing blind),
++                cwe:             119,
++                severity:        Severity::HIGH,
++                remedy_guidance: %q{
++It is recommended that untrusted input is never processed as server-side code.
++
++To validate input, the application should ensure that the supplied value contains
++only the data that are required to perform the relevant action.
++
++For example, where a username is required, then no non-alpha characters should not
++be accepted and verify size max.
++}
++            }
++        }
++    end
++
++end
+diff -aburN ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/rfi.rb system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/rfi.rb
+--- ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/rfi.rb	2016-09-26 11:33:11.129359096 +0200
++++ system/gems/bundler/gems/arachni-9d51355a2564/components/checks/active/rfi.rb	2016-09-26 11:53:22.073334386 +0200
+@@ -9,6 +9,7 @@
+ # Simple Remote File Inclusion (and tutorial) check.
+ #
+ # @author Tasos "Zapotek" Laskos <tasos.laskos@arachni-scanner.com>
++# Modified by Lionel PRAT <lionel.prat9@gmail>: add remote connexion on local network with netcat + log tentative
+ #
+ # @see http://cwe.mitre.org/data/definitions/94.html
+ # @see http://projects.webappsec.org/Remote-File-Inclusion
+@@ -30,6 +31,13 @@
+         # Debugging output will only appear if "--debug" is enabled.
+         #
+         print_debug 'In #prepare'
++        port_open = `ps -aux |grep '705cd559b16e6946826207c2199bd890'|grep 'nc'|awk -F '-p' '{print $2}'|awk '{print $1}'`
++        port = port_open.scan(/[0-9]+/).join
++        if !(port =~ /[0-9]+/)
++            print_status 'RFI CHECK LOAD: you can start test rfi with remote connexion on local network. If you can, run on another shell:'+"\n"+'while true; do  nc -l -p 8080 -c \'echo -e "HTTP/1.1 200 OK\r\n$(date)\r\n\r\n";echo "705cd559b16e6946826207c2199bd890"\' -vv &>> /tmp/log_rfi;done'
++            print_status 'Wait 15sec for run cmd...'
++            sleep 15
++        end
+     end
+ 
+     #
+@@ -43,13 +51,27 @@
+     # It's Framework convention to name the method which contains the strings
+     # to be injected {.payloads}.
+     #
++    #change: playload local => while true; do  nc -l -p 8080 -c 'echo -e "HTTP/1.1 200 OK\r\n$(date)\r\n\r\n";echo "705cd559b16e6946826207c2199bd890"' -vv &>> /tmp/log_rfi;done
+     def self.payloads
++        port_open = `ps -aux |grep '705cd559b16e6946826207c2199bd890'|grep 'nc'|awk -F '-p' '{print $2}'|awk '{print $1}'`
++        port = port_open.scan(/[0-9]+/).join
++        if port =~ /[0-9]+/
++            ip = Socket.ip_address_list.detect{|intf| intf.ipv4_private?}
++            ip.ip_address
++            #Fixe choice port
++            @payloads ||= [
++                'hTtP://'+ip.ip_address+':'+port+'/rfi.md5.txt',
++                'http://'+ip.ip_address+':'+port+'/rfi.md5.txt',
++                ip.ip_address+':'+port+'/rfi.md5.txt'
++            ]
++        else    
+         @payloads ||= [
+             'hTtP://tests.arachni-scanner.com/rfi.md5.txt',
+             'http://tests.arachni-scanner.com/rfi.md5.txt',
+             'tests.arachni-scanner.com/rfi.md5.txt'
+         ]
+     end
++    end
+ 
+     #
+     # It's Framework convention to name the method which contains the audit
+diff -aburN ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/grep/html_comments.rb system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/grep/html_comments.rb
+--- ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/grep/html_comments.rb	1970-01-01 01:00:00.000000000 +0100
++++ system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/grep/html_comments.rb	2016-09-26 11:38:10.573352985 +0200
+@@ -0,0 +1,43 @@
++=begin
++    Copyright 2010-2016 Lionel PRAT <lionel.prat9@gmail.com>
++
++    This file is part of the Arachni Framework project and is subject to
++    redistribution and commercial restrictions. Please see the Arachni Framework
++    web site for more information on licensing and terms of use.
++=end
++
++# Looks for HTML "comment" tags.
++#
++# @author Lionel PRAT <lionel.prat9@gmail.com>
++class Arachni::Checks::HtmlComments < Arachni::Check::Base
++
++    def self.regexp
++        @regexp ||= /<\!--.*?-->/im
++    end
++
++    def run
++        match_and_log( self.class.regexp ) { |m| m && !m.empty? }
++    end
++
++    def self.info
++        description = %q{Logs the existence of HTML comment tags.
++                Since Arachni can't execute things like Java Applets and Flash
++                this serves as a heads-up to the penetration tester to review
++                the objects in question using a different method.}
++        {
++            name:        'HTML comments',
++            description: description,
++            elements:    [ Element::Body ],
++            author:      'Lionel PRAT <lionel.prat9@gmail.com>',
++            version:     '0.0.1',
++
++            issue:       {
++                name:        %q{HTML comments},
++                cwe:         200,
++                description: description,
++                severity:    Severity::INFORMATIONAL
++            }
++        }
++    end
++
++end
+diff -aburN ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/grep/search_base64.rb system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/grep/search_base64.rb
+--- ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/grep/search_base64.rb	1970-01-01 01:00:00.000000000 +0100
++++ system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/grep/search_base64.rb	2016-09-26 11:38:33.337352521 +0200
+@@ -0,0 +1,95 @@
++=begin
++    Copyright 2010-2016 Lionel PRAT <lionel.prat9@gmail.com>
++
++    This file is part of the Arachni Framework project and is subject to
++    redistribution and commercial restrictions. Please see the Arachni Framework
++    web site for more information on licensing and terms of use.
++=end
++
++# Looks element base64 => search serialized object.
++#
++# @author Lionel PRAT <lionel.prat9@gmail.com>
++class Arachni::Checks::Search_base64 < Arachni::Check::Base
++
++    def self.regexp
++        #@regexp ||= /(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}%3d%3d|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{3}%3d)/im
++        @regexp ||= /(?:(?:[A-Za-z0-9+\/]|%2F|%2B){4})*(?:(?:[A-Za-z0-9+\/]|%2F|%2B){2}==|(?:[A-Za-z0-9+\/]|%2F|%2B){4})*(?:(?:[A-Za-z0-9+\/]|%2F|%2B){2}%3d%3d|(?:[A-Za-z0-9+\/]|%2F|%2B){3}=|(?:[A-Za-z0-9+\/]|%2F|%2B){3}%3d)/im
++    end
++
++    def run
++        #body maybe contains base64 but not modify by user, select than modify user
++        #match_and_log( self.class.regexp ) { |match| valid_base64?( match ) }
++        page.forms.each do |form|
++            form.inputs.each do |n, v|
++                next if form.details_for( n )[:type] != :hidden
++                next if !(v =~ self.class.regexp)
++                list_match = v.scan(self.class.regexp)
++                for elem_match in list_match
++                    elem_match=elem_match.gsub('%3D',"=")
++                    elem_match=elem_match.gsub('%2B',"+")
++                    elem_match=elem_match.gsub('%2F',"/")
++                    elem_match=elem_match.gsub('%3d',"=")
++                    elem_match=elem_match.gsub('%2b',"+")
++                    elem_match=elem_match.gsub('%2f',"/")
++                    next if !(Base64.encode64(Base64.decode64(elem_match)) === elem_match + "\n")
++                    log(
++                        proof: "Encode:" + elem_match + " -- Decode:" + Base64.decode64(elem_match).scan(/[[:print:]]/).join,
++                        vector: form
++                    )
++                end
++            end
++        end
++        
++        page.response.headers.each do |k, v|
++            next if !(v =~ self.class.regexp)
++            list_match = v.scan(self.class.regexp)
++            for elem_match in list_match
++                elem_match=elem_match.gsub('%3D',"=")
++                elem_match=elem_match.gsub('%2B',"+")
++                elem_match=elem_match.gsub('%2F',"/")
++                elem_match=elem_match.gsub('%3d',"=")
++                elem_match=elem_match.gsub('%2b',"+")
++                elem_match=elem_match.gsub('%2f',"/")
++                next if !(Base64.encode64(Base64.decode64(elem_match)) === elem_match + "\n")
++                log(
++                    vector: Element::Header.new( url: page.url, inputs: { k => v } ),
++                    proof:  "Encode:" + elem_match + " -- Decode:" + Base64.decode64(elem_match).scan(/[[:print:]]/).join
++                )
++            end
++        end
++    end
++
++    #
++    # Checks for a valid base64
++    #
++    def valid_base64?( elem_match )
++        elem_match=elem_match.gsub('%3D',"=")
++        elem_match=elem_match.gsub('%2B',"+")
++        elem_match=elem_match.gsub('%2F',"/")
++        elem_match=elem_match.gsub('%3d',"=")
++        elem_match=elem_match.gsub('%2b',"+")
++        elem_match=elem_match.gsub('%2f',"/")
++        return if !(Base64.encode64(Base64.decode64(elem_match)) === elem_match + "\n")
++        "Encode:" + elem_match + " -- Decode:" + Base64.decode64(elem_match)
++    end
++    
++    def self.info
++        description = %q{Logs the existence of base64.
++                Base64 used for serializ object.}
++        {
++            name:        'Search Base64',
++            description: description,
++            elements:    [ Element::Header, Element::Form ],
++            author:      'Lionel PRAT <lionel.prat9@gmail.com>',
++            version:     '0.0.1',
++
++            issue:       {
++                name:        %q{Element in Base64},
++                cwe:         200,
++                description: description,
++                severity:    Severity::LOW
++            }
++        }
++    end
++
++end
+diff -aburN ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/interesting_timeout.rb system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/interesting_timeout.rb
+--- ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/interesting_timeout.rb	1970-01-01 01:00:00.000000000 +0100
++++ system/gems/bundler/gems/arachni-9d51355a2564/components/checks/passive/interesting_timeout.rb	2016-09-26 11:37:17.865354061 +0200
+@@ -0,0 +1,76 @@
++=begin
++    Copyright 2010-2016 Lionel PRAT <lionel.prat9@gmail.com>
++
++    This file is part of the Arachni Framework project and is subject to
++    redistribution and commercial restrictions. Please see the Arachni Framework
++    web site for more information on licensing and terms of use.
++=end
++
++# Logs all time-out response
++#
++# @author Lionel PRAT <lionel.prat9@gmail.com>
++class Arachni::Checks::InterestingTimeout < Arachni::Check::Base
++
++    def self.ran?
++        @ran ||= false
++    end
++
++    def self.ran
++        @ran = true
++    end
++
++    def run
++        return if self.class.ran?
++
++        # tell the HTTP interface to call this block every-time a request completes
++        http.on_complete { |response| check_and_log( response ) }
++    end
++
++    def clean_up
++        self.class.ran
++    end
++
++    def check_and_log( response )
++        ##timed_out? ⇒ Boolean 
++        return if !(response.timed_out?)
++
++        path = uri_parse( response.url ).path
++
++        return if audited?( path ) || audited?( response.body )
++
++        audited( path )
++        audited( response.body )
++
++        log(
++             proof:    "Response time depassed: #{response.time}",
++             vector:   Element::Server.new( response.url ),
++             response: response
++        )
++        print_ok "Found an interesting response -- Time-out: #{response.time}."
++    end
++
++    def self.info
++        {
++            name:        'Interesting responses Time-Out',
++            description: %q{Logs all non 200 (OK) server responses.},
++            elements:    [ Element::Server ],
++            author:      'Lionel PRAT <lionel.prat9@gmail.com>',
++            version:     '0.0.1',
++
++            issue:       {
++                name:        %q{Interesting response Time-Out},
++                description: %q{
++The server responded delay time-out.
++This is a non-issue, however delay/long time response can provide useful
++insights into the behavior of the web application and assist with the penetration test.
++},
++                references:  {
++                    'w3.org' => 'http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html'
++                },
++                tags:        %w(interesting response server time-out),
++                severity:    Severity::INFORMATIONAL
++            },
++            max_issues: 25
++        }
++    end
++end
+diff -aburN ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/Gemfile system/gems/bundler/gems/arachni-9d51355a2564/Gemfile
+--- ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/Gemfile	2016-09-26 11:33:11.085359097 +0200
++++ system/gems/bundler/gems/arachni-9d51355a2564/Gemfile	2016-09-26 11:34:49.361357091 +0200
+@@ -2,7 +2,7 @@
+ 
+ gem 'rake'
+ gem 'pry'
+-
++gem 'simhash'
+ group :docs do
+     gem 'yard'
+     gem 'redcarpet'
+diff -aburN ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/check/auditor.rb system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/check/auditor.rb
+--- ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/check/auditor.rb	2016-09-26 11:33:11.125359096 +0200
++++ system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/check/auditor.rb	2016-09-26 11:56:18.905330777 +0200
+@@ -519,7 +519,7 @@
+                     prepare_each_element(page.cookies, &block )
+ 
+                 when Element::Header.type
+-                    prepare_each_element( page.headers, &block )
++                    prepare_each_element_header( page.headers, &block )
+ 
+                 when Element::LinkTemplate.type
+                     prepare_each_element( page.link_templates, &block )
+@@ -712,6 +712,49 @@
+         end
+     end
+ 
++    def prepare_each_element_header( elements, &block )
++        tmp_array = []
++        begin
++            File.open(File.dirname( __FILE__ ) + '/../element/header/headers.db') do |fh|
++                fh.each_line do |linex|
++                    linex.delete!("\n")
++                    tmp_array.push(linex)
++                end
++            end
++        rescue
++            print_debug_level_2 "ERROR on file header #{Dir.pwd}"
++        end
++        elements.each do |e|
++          #verify if not exist in element
++          e.inputs.keys.each { |k| tmp_array.delete k.downcase }
++        end
++        elements.each do |e|
++            #create new header
++            for new_head in tmp_array
++                #verify if not exist in element else continue
++                print_debug_level_2 "ADD header #{new_head}"
++                d = e.dup
++                tmphash = {}
++                tmphash[new_head] = ""
++                d.inputs = tmphash
++                d.auditor = self
++                block.call d
++            end
++            #end
++            print_debug_level_2 "ADD HEADER ELEMENT 0 => #{e.inputs}"
++            #why skip element user agent, ...?
++            next if skip?( e ) || e.inputs.empty?
++            print_debug_level_2 "ADD HEADER ELEMENT 1 => #{e.inputs}"
++            d = e.dup
++            print_debug_level_2 "ADD HEADER ELEMENT 1 => #{d.inputs}"
++            d.auditor = self
++            block.call d
++        end
++        #d = e.dup
++        #d.auditor = self
++        #block.call d
++    end
++
+     def prepare_each_dom_element( elements, &block )
+         elements.each do |e|
+             next if !e.dom || e.dom.inputs.empty? || skip?( e.dom )
+diff -aburN ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/element/capabilities/mutable.rb system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/element/capabilities/mutable.rb
+--- ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/element/capabilities/mutable.rb	2016-09-26 11:33:11.125359096 +0200
++++ system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/element/capabilities/mutable.rb	2016-09-26 11:57:42.969329062 +0200
+@@ -180,17 +180,97 @@
+         filled_in_inputs = Options.input.fill( @inputs )
+ 
+         if options[:parameter_values]
++            #all_combi_inputs = []
+             @inputs.keys.each do |name|
+                 # Don't let parameter name pollution from an old audit of an
+                 # input name trick us into doing the same for elements without
+                 # that option.
+                 next if name == EXTRA_NAME
+                 next if immutables.include?( name )
++                print_debug_level_2 "Input name: #{name}"
++                #create multi combi with input selected          
++                filled_in_inputs_keys = filled_in_inputs.keys
++                n_filled_in_inputs = filled_in_inputs_keys.length
++                #[['1','2'], ['1'], ['2','3']].sort.include?(['2','4'].sort)
++                combi_filled_in_inputs={}
++                if n_filled_in_inputs == 1
++                    print_debug_level_2 "COMBI -- number of param in query == 1 #{self.to_s}"
++                    #check if HEADER mutation.affected_input_name self => #<Arachni::Element::Header:0x007f8ad0024e70>
++                    if self.to_s =~ /Element::Header/i
++                        #header type
++                        print_debug_level_2 "payload -> #{payload} -- #{options[:format]}"
++                        value_array = filled_in_inputs[name].split(/[,;=]/)
++                        #BUG if value_array contains word identik
++                        for value_elem in value_array
++                            formatted_payload=filled_in_inputs[name]
++                            matches = filled_in_inputs[name].scan(value_elem).length
++                            if matches > 1
++                                pos_end=filled_in_inputs[name].length - 1
++                                pos_cour=0
++                                #pos=filled_in_inputs[name].index(value_elem) + value_elem.length
++                                for i in 1..matches         
++                                    formatted_payload=filled_in_inputs[name]
++                                    formatted_payload[pos_cour..pos_end].sub(value_elem, payload)
++                                    formatted_payload=formatted_payload
++                                    print_debug_level_2 "CHOIX 1 payload -> #{formatted_payload}"
++                                    elem = create_and_yield_if_unique(
++                                        generated, filled_in_inputs, payload, name,
++                                        formatted_payload, 2, &block
++                                    )
++                                    pos_cour=filled_in_inputs[name][pos_cour..pos_end].index(value_elem) + value_elem.length
++                                    next if !elem
++                                    
++                                    if options[:with_raw_payloads]
++                                        yield_if_unique( elem.with_raw_payload, generated, &block )
++                                    end
++                                    
++                                    if options[:with_both_http_methods]
++                                        yield_if_unique( elem.switch_method, generated, &block )
++                                    end
++                                end
++                            else
++                                formatted_payload=formatted_payload.sub(value_elem, payload)
++                                print_debug_level_2 "CHOIX 2 payload -> #{formatted_payload}"
++                                elem = create_and_yield_if_unique(
++                                    generated, filled_in_inputs, payload, name,
++                                    formatted_payload, 2, &block
++                                )
++                                next if !elem
++                                
++                                if options[:with_raw_payloads]
++                                    yield_if_unique( elem.with_raw_payload, generated, &block )
++                                end
+ 
++                                if options[:with_both_http_methods]
++                                    yield_if_unique( elem.switch_method, generated, &block )
++                                end
++                                if filled_in_inputs[name] != "1"
+                 each_formatted_payload(
+                     payload, options[:format], filled_in_inputs[name]
+                 ) do |format, formatted_payload|
++                                        elem = create_and_yield_if_unique(
++                                            generated, filled_in_inputs, payload, name,
++                                            formatted_payload, 2, &block
++                                        )
++                                        next if !elem
+ 
++                                        if options[:with_raw_payloads]
++                                            yield_if_unique( elem.with_raw_payload, generated, &block )
++                                        end
++                                        
++                                        if options[:with_both_http_methods]
++                                            yield_if_unique( elem.switch_method, generated, &block )
++                                        end
++                                    end
++                                end
++                            end
++                        end
++                        
++                    else
++                        #not modify
++                        each_formatted_payload(
++                            payload, options[:format], filled_in_inputs[name]
++                        ) do |format, formatted_payload|
+                     elem = create_and_yield_if_unique(
+                         generated, filled_in_inputs, payload, name,
+                         formatted_payload, format, &block
+@@ -208,6 +288,66 @@
+                 end
+             end
+         end
++                if n_filled_in_inputs > 1
++                    print_debug_level_2 "COMBI -- number of param in query > 1"
++                    #first select name only
++                    combi_filled_in_inputs={}
++                    combi_filled_in_inputs[name]=filled_in_inputs[name]
++                    #create
++                    print_debug_level_2 "CREATE COMBI: #{combi_filled_in_inputs}"
++                    each_formatted_payload(
++                        payload, options[:format], combi_filled_in_inputs[name]
++                    ) do |format, formatted_payload|
++                        elem = create_and_yield_if_unique(
++                            generated, combi_filled_in_inputs, payload, name,
++                            formatted_payload, format, &block
++                        )
++                    
++                        next if !elem
++                    
++                        if options[:with_raw_payloads]
++                            yield_if_unique( elem.with_raw_payload, generated, &block )
++                        end
++                    
++                        if options[:with_both_http_methods]
++                            yield_if_unique( elem.switch_method, generated, &block )
++                        end
++                    end
++                    for i in 2..n_filled_in_inputs
++                        tmp_combis=filled_in_inputs_keys.combination(i).to_a
++                        for tmp_combi in tmp_combis
++                            if tmp_combi.include?(name)
++                                #keep combi and create
++                                combi_filled_in_inputs={}
++                                for name_combi in tmp_combi
++                                    combi_filled_in_inputs[name_combi]=filled_in_inputs[name_combi]
++                                end
++                                #CREATE
++                                print_debug_level_2 "CREATE COMBI: #{combi_filled_in_inputs}"
++                                each_formatted_payload(
++                                    payload, options[:format], combi_filled_in_inputs[name]
++                                ) do |format, formatted_payload|
++                                    elem = create_and_yield_if_unique(
++                                        generated, combi_filled_in_inputs, payload, name,
++                                        formatted_payload, format, &block
++                                    )
++                                
++                                    next if !elem
++                                
++                                    if options[:with_raw_payloads]
++                                        yield_if_unique( elem.with_raw_payload, generated, &block )
++                                    end
++                                
++                                    if options[:with_both_http_methods]
++                                        yield_if_unique( elem.switch_method, generated, &block )
++                                    end
++                                end
++                            end
++                        end
++                    end
++                end 
++            end
++        end
+ 
+         if options[:with_extra_parameter]
+             if valid_input_name?( EXTRA_NAME )
+@@ -390,6 +530,7 @@
+ 
+         elem                      = self.dup.update( inputs )
+         elem.seed                 = seed
++        elem.inputs               = inputs
+         elem.affected_input_name  = input_name
+         elem.affected_input_value = input_value
+         elem.format               = format
+diff -aburN ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/element/header/headers.db system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/element/header/headers.db
+--- ../arachni-2.0dev-1.0dev.ori/system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/element/header/headers.db	1970-01-01 01:00:00.000000000 +0100
++++ system/gems/bundler/gems/arachni-9d51355a2564/lib/arachni/element/header/headers.db	2016-09-26 11:54:29.533333009 +0200
+@@ -0,0 +1,93 @@
++header
++accept
++accept-charset
++accept-encoding
++accept-language
++accept-ranges
++access-control-allow-credentials
++access-control-allow-headers
++access-control-allow-methods
++access-control-allow-origin
++access-control-expose-headers
++access-control-max-age
++age
++allow
++alternates
++authorization
++cache-control
++commerce-server-software
++connection
++content-encoding
++content-language
++content-length
++content-location
++content-md5
++content-range
++content-security-policy
++content-security-policy-report-only
++content-type
++dasl
++date
++dav
++etag
++expect
++expires
++from
++host
++if-match
++if-modified-since
++if-none-match
++if-range
++if-unmodified-since
++keep-alive
++last-modified
++location
++max-forwards
++mime-version
++nncoection
++p3p
++persistent-auth
++pragma
++proxy-authenticate
++proxy-authorization
++proxy-connection
++public
++range
++referer
++retry-after
++server
++set-cookie
++status
++strict-transport-security
++te
++trailer
++transfer-encoding
++upgrade
++user-agent
++vary
++via
++warning
++whisker
++www-authenticate
++x-aspnetmvc-version
++x-aspnet-version
++x-cache-hits
++x-clacks-overhead
++x-cnection
++x-content-security-policy
++x-content-type-options
++x-download-options
++x-frame-options
++x-id
++xmlns
++x-mod-pagespeed
++x-pad
++x-page-speed
++x-permitted-cross-domain-policies
++x-pingback
++x-powered-by
++x-robots-tag
++x-ua-compatible
++x-varnish
++x-webkit-csp
++x-xss-protection

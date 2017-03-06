@@ -1,0 +1,30 @@
+;; bind-malware
+;; plugin_id: 1599
+;; 
+[DEFAULT]
+plugin_id=1599
+
+[config]
+type=detector
+enable=yes
+source=log
+location=/nfs/dns/bh-dns-analyse.log
+create_file=false
+
+process=bind-malware
+start=no     
+stop=no   
+restart=yes 
+restart_interval=\_CFG(watchdog,restart_interval)
+
+[bind-malware-log]
+event_type=event
+regexp=(?P<date>\w+\s+\d+\s+\d+\s+\d\d:\d\d:\d\d\s+\+\d+)\s+Trouve\s+(?P<ip>\d+\.\d+\.\d+\.\d+)\s+query\s+(?P<zone>\S+)
+date={normalize_date($date)}
+plugin_sid=1
+src_ip={$ip}
+#IP de votre DNS dans dst_ip
+dst_ip=192.168.0.1
+dst_port=53
+protocol=udp
+userdata1={$zone}

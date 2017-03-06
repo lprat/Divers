@@ -1,0 +1,364 @@
+/***************************************************************************
+                            Bien utiliser GDB & Ltrace
+                              (Texte Version 1.0)
+                             -----------------------
+    begin                : 3 Octobre 2000
+    copyright            : (C) 2000 by Anti-Social
+    email                : lionel56@nether.net
+    site                 : www.nether.net/~lionel56/
+ ***************************************************************************/
+
+
+
+1- Quesque c'est gdb & Ltrace?
+______________________________
+
+GDB est un debugeur sous linux (peut etre aussi sous win je ne sais pas...).
+Ltrace sert a tracer un programme a partir d'un pid , ... Très utile!
+
+a) Où on peut telecharger ces softs?
+====================================
+
+GDB doit etre deja sur votre systeme normalement si vous avez linux.
+
+ftp://sourceware.cygnus.com/pub/gdb/releases/
+ftp://ftp.gnu.org/pub/gnu/gdb/
+
+Pour ltrace, il est par defaut sur debian normalement.
+
+ftp://ftp.pasteur.fr/pub/computing/linux/debian/dists/potato/main/source/utils/ltrace_0.3.10.tar.gz
+ftp://ftp.lip6.fr/pub2/linux/distributions/debian/dists/potato/main/source/utils/ltrace_0.3.10.tar.gz
+
+b) Dans quelle cas peuve nous servire ces softs?
+================================================
+
+Ces softs sont utiles pour trouver les bugs qui ne sont pas detectés lors de la compilation...
+Par exemple, des erreurs "memoire", de boucle infini qui block le programme...
+Ils peuvent aussi servir de dés-assembleur (surtout gdb) ou quand on a pas les
+sources d'un programme pour voir ce qu'il fait (dans le cas de ltrace).
+Ils servent aussi dans le monde de la securité pour faire des exploits ou trouver 
+des failles...(voir article exploit BUG).
+
+2- Ltrace
+_________
+
+On lance ltrace pour matter les options:
+$ltrace -V 
+/* ma version de ltrace... */
+ltrace version 0.3.8.
+Copyright (C) 1997-1999 Juan Cespedes <cespedes@debian.org>.
+This is free software; see the GNU General Public Licence
+version 2 or later for copying conditions.  There is NO warranty.   
+
+$ltrace --help
+Usage: ltrace [option ...] [command [arg ...]]
+Trace library calls of a given program.
+
+  -d, --debug         print debugging info.
+  -f                  follow forks.
+  -i                  print instruction pointer at time of library call.
+  -L                  do NOT display library calls.
+  -S                  display system calls.
+  -r                  print relative timestamps.
+  -t, -tt, -ttt       print absolute timestamps.
+  -C, --demangle      decode low-level symbol names into user-level names.
+  -a, --align=COLUMN  align return values in a secific column.
+  -s STRLEN           specify the maximum string size to print.
+  -o, --output=FILE   write the trace output to that file.
+  -u USERNAME         run command with the userid, groupid of username.
+  -p PID              attach to the process with the process ID pid.
+  -e expr             modify which events to trace.
+  -h, --help          display this help and exit.
+  -V, --version       output version information and exit.
+
+a) C'est quoi toutes ces options?
+=================================
+
+options:
+--------
+/* ps: je présenterais que les options que je connais bien et qui sont les plus
+   utiles mais sachez qui en à d'autres qui peuvent être utile dans certains cas...
+ */
+          - ltrace -i prog 
+            J'utilise tres souvent cette option car elle donne les adresses des
+            fonctions en cours de déroulement.
+            exemple:
+            [080486c5] printf("Anti-Social\n"Anti-Social)   = 12  /* avec */
+            printf("Anti-Social\n"Anti-Social)   = 12  /* sans
+
+          - ltrace -L prog
+            Celle-ci c'est le contraire de l'autre , donc si vous mettez -iL cela
+            fait comme si il y avait que -L mais en plus cette fonction enlève
+            "la fonction executé" , ca revient a un ./bot tout simple...
+            Anti-Social /* avec */
+            printf("Anti-Social\n"Anti-Social) = 12 /* sans */
+   
+          - ltrace -S prog
+            Cette option montre les sous fonctions appelé pour une fonction...
+            Exemple:
+            printf("Anti-Social\n" <unfinished ...>  
+            SYS_write(1, "Anti-Social\n", 12Anti-Social ) = 12
+
+          - ltrace -r prog
+            Cette option est pour voir le temps d’exécution de chaque fonction.
+         
+          - ltrace -t ou -tt prog (voir -ttt)
+            Cette fonction montre le temps d’exécution du programme et des
+            fonctions par rapport a l'heure qu'il est...
+ 
+          - ltrace -s taille prog
+            Cette option peut être intéressante si on veut voir ce que le prog
+            copie dans un buffer a travers un sprintf ou autre si ce string est
+            très grand...
+
+          - ltrace -o file prog
+            Copie les résultats du trace dans un fichier.
+
+          - ltrace -p PID 
+            Si le programme a tracer a "fork" (deamon)...
+            Cette commande est utile (ps: ps -aux ;) )
+
+          - ltrace -e func prog
+            Si vous desirez tracer que des fonctions particulière, exemple:
+            strcpy , strcat .... L'option -e est votre amie!
+
+Voila à peut prêt les options les plus intéressantes a mon gout!
+Bien sur vous pouvez grouper des fonctions...
+exemple: ltrace -iSr -s taille -p  pid 
+
+b) Comment on se sert de ces informations?
+==========================================
+
+Cela peut servir a plusieurs chose tout dépend qu'elle est votre but...
+Si par exemple c'est pour la securité, vous testez les cmds d'un serveur
+et tout-a-coups un segfault! Si vous avez mis l'option -i il vous suffira
+d'utiliser gdb avec l'adresse pour connaitre la fonction qui faille et avoir
+d'autres informations.
+Si c'est pour debugger un programme cela peut vous faire comprendre la où le
+programme bloque apres un coups de gdb avec l'adresse et on connait vers
+qu'elle fonction le code bloque!
+Bien sur il y a plein d'autres possibilités a vous de les trouver!
+
+3- GDB
+______
+
+GDB est ton ami! ;)
+A première vue il est compliqué mais quand on commence a bien le connaitre, il
+est très simple et très utile!
+
+Le mieux pour passer un programme sous gdb, il faut le compiler avec l'option
+"-g" (gcc -g -o bla bla.c).
+
+On lance gdb:
+$gdb -q prog
+(gdb) help
+List of classes of commands:
+ 
+aliases -- Aliases of other commands
+breakpoints -- Making program stop at certain points
+data -- Examining data
+files -- Specifying and examining files
+internals -- Maintenance commands
+obscure -- Obscure features
+running -- Running the program
+stack -- Examining the stack
+status -- Status inquiries
+support -- Support facilities
+tracepoints -- Tracing of program execution without stopping the program
+user-defined -- User-defined commands
+                       
+(gdb) help data
+
+call -- Call a function in the program
+delete display -- Cancel some expressions to be displayed when program stops
+disable display -- Disable some expressions to be displayed when program stops
+disassemble -- Disassemble a specified section of memory
+display -- Print value of expression EXP each time the program stops
+enable display -- Enable some expressions to be displayed when program stops
+inspect -- Same as "print" command
+output -- Like "print" but don't put in value history and don't print newline
+print -- Print value of expression EXP
+printf -- Printf "printf format string"
+ptype -- Print definition of type TYPE
+set -- Evaluate expression EXP and assign result to variable VAR
+set variable -- Evaluate expression EXP and assign result to variable VAR
+undisplay -- Cancel some expressions to be displayed when program stops
+whatis -- Print data type of expression EXP
+x -- Examine memory: x/FMT ADDRESS   
+
+(gdb) help stack
+
+backtrace -- Print backtrace of all stack frames
+bt -- Print backtrace of all stack frames
+down -- Select and print stack frame called by this one
+frame -- Select and print a stack frame
+return -- Make selected stack frame return to its caller
+select-frame -- Select a stack frame without printing anything
+up -- Select and print stack frame that called this one    
+      
+(gdb) 
+
+/*
+  Je ne montre pas toutes les fonctions car il y en a trop...
+  Je ne les connais pas toutes mais je vais vous presenter celle
+  que j'utilise le plus...
+ */
+
+(gdb) disassemble func 
+/* 
+  func etant la fonction a disassembler.
+  exemple: disassemble main ... vas disassembler int main(){} de ton code
+ */
+
+0x8049038 <main+2440>:  call   0x804856c <strstr>  
+
+/*
+  Voila les lignes que l'on va trouver pendant le disassemblage.
+  La premiere colone en partant de la gauche c'est l'adresse de la ligne
+  qu'il execute. La dexieme colone c'est la ligne qui l'execute mais pas
+  en forme d'adresse hex mais dans main... Ca revient au meme les 2.
+  La 3eme colone c'est ce qu'il execute sur cette adresse, ici:
+  call   0x804856c <strstr>  
+  L'adresse 0x804856c est la fonction strstr() c'est donc indiqué...
+  call => fonction ASM ...
+  L'adresse 0x8049038 (1ere colone) est l'adresse que donne l'option "-i"
+  dans ltrace... 
+  Imaginons justement que nous avons une adresse venant de ltrace dont
+  on voudrai savoir ou elle se situe dans le programme...
+  (gdb)disassemble 0x8049038 0x8049038+0x01
+*/
+
+(gdb) r <arg> 
+
+/*
+  Cette commande (r = run) lance le programme et <arg> c'est les arguments
+  de lancement style ./scan 127.0.0.1 ... 
+ */
+
+Starting program: ./test
+Anti-Social
+Program exited normally. 
+
+/* 
+  La, on peut voir que le programme c'est bien fini!
+  Il arrive qu'il y est des erreurs... 
+  Si le programme se finissait mal, on pourrait faire un
+  (gdb)info reg
+  La on aurai un tableau , le plus important serai l'adresse de "eip"
+  Car c'est sur cette adresse que le prog a planté.
+  Donc un coup de:
+  (gdb)disassemble 0xxxxx 0xxxxx+0x01
+  Et on c'est de suite ou ca a bugé! :)
+ */  
+
+
+(gdb)break *0x80486cd 
+
+/* 
+  Cette commande va stopper le programme quand il arrivera a cette adresse.
+  Par exemple si le programme bloquait ou segment fault a cette adresse
+  on peut savoir en mattant les registres d'ou cela vient ou alors en regardant
+  le buffer ou ce qui lit ou traite... :)
+*/
+
+(gdb)r
+
+start...
+Breakpoint 1, 0x80486cd in main ()    
+
+(gdb)info reg
+
+/*
+  Donne la table des registres!
+ */
+
+eax            0xc      12
+ecx            0x401147c0       1074874304
+edx            0xc      12
+ebx            0x40115ff8       1074880504
+esp            0xbffff0c4       0xbffff0c4
+ebp            0xbffff808       0xbffff808
+esi            0x4000ac70       1073785968
+edi            0xbffff854       -1073743788
+eip            0x80486cd        0x80486cd
+eflags         0x282    642
+cs             0x23     35
+ss             0x2b     43
+ds             0x2b     43
+es             0x2b     43
+fs             0x0      0
+gs             0x0      0  
+
+/* 
+  On voudrai savoir qu'est ce que 0x80486cd  , pas de pb
+  (gdb)disassemble 0x80486cd  0x80486cd+0x01
+  0x80486cd <main+29>:    call   0x80485ac <printf> 
+  C'est bien notre ligne qu'il execute!
+  mais quesqui va printf?
+  Vue que on connait le nom de notre buffer qui passe dans le printf
+  on va chercher son adresse pour verifier son contenu:
+  (gdb) print &buffer
+  $3 = (char (*)[30]) 0x40119ce8 
+  La on peut lire qu'il fait une taille de 30 octets et que son adresse est:
+  0x40119ce8.
+  (gdb) print buffer
+  $1 = '\000' <repeats 29 times>  
+  La on voit qui répète 29 fois "\000"
+  Mais comment on fait si on a une adresse hex a la place d'un nom?
+  (gdb)x/s 0x40119ce8
+  0x40119ce8 <buffer>:     ""
+  Voila y dit que son nom est buffer et qui a rien de dans!
+  Normale car "\000" = NULL
+  Dans la serie des commande x/.. Y en a plein
+  Quelque exemples:
+
+  (gdb) x/t 0x40119ce8
+  0x40119ce8 <buffer>:    00000000000000000000000000000000 
+
+  (gdb) x/t 0x80486cd
+  0x80486cd <main+29>:    11111111111111101101101011101000
+
+  (gdb) x/wx 0x40119ce8
+  0x40119ce8 <buffer>:    0x00000000   
+
+  (gdb) x/wx 0x80486cd
+  0x80486cd <main+29>:    0xfffedae8    
+  
+  (gdb) x/a 0x40119ce8
+  0x40119ce8 <buffer>:    0x0 
+
+  (gdb) x/a 0x80486cd
+  0x80486cd <main+29>:    0xfffedae8 
+
+  (gdb) x/i 0x40119ce8
+  0x40119ce8 <buffer>:    add    %al,(%eax) 
+
+  (gdb) x/i 0x80486cd
+  0x80486cd <main+29>:    call   0x80485ac <printf> 
+
+  (gdb) x/d addr /* decimale print */
+
+  (gdb) x/c 0x40119ce8
+  0x40119ce8 <buffer>:    0 '\000'  
+
+  (gdb) x/b 0x40119ce8
+  0x40119ce8 <buffer>:    0 '\000'  
+
+ Pour print ou x/.. un registre print $esp ou x/x $esp
+
+ x/4x vous permet de voir les 4 adresse qui suit...
+ 
+ */
+
+(gdb)quit
+
+Voila avec ces bases vous devriez y arriver!
+
+
+
+
+Bien sur apres a vous de progresser et de comprendre ce qu'il se passe...
+Connaitre un peu l'asm est conseillé...
+Bonne chance !
+
+

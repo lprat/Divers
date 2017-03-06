@@ -1,0 +1,18 @@
+Introduction
+
+Fw-Nat est le nom d'un programme C qui permet d'autoriser le nat d'une station après avoir accusé d'une demande dhcp (DHCPACK) et un scan de securité (nmap nse promiscuous et conficker).
+Prérequis
+
+    GCC
+    DHCP (/var/lib/dhcpd/dhcpd.leases) & log dans /var/log/dhcp.log
+    Nmap version > 5 (nse)
+    iptables
+    Fonctionne pour la classe C 192.168.72.0/24
+
+Compile & Run
+
+    cc -o fwnat fwnat.c
+    Avant lancement flush la tab nat de iptables (iptables -t nat -F)
+    shell$(tail -f /var/log/dhcp.log | /usr/local/bin/dhcpnat-fw) &
+
+

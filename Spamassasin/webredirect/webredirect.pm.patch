@@ -1,0 +1,5 @@
+line 540:
+before:
+        if ($uri_host =~ /^$regexp$/) {  # both already lc
+after:
+        if ($uri_host =~ /$regexp$/) {  # both already lc

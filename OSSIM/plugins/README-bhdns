@@ -1,0 +1,14 @@
+Plugin OSSIM - BH-DNS Détecteur
+Introduction
+
+Dans un premier temps vous devez configurer votre DNS pour enregistrer les requêtes « query », dans options :
+
+querylog yes;
+#adaptez la taille, l'emplacement et la rotation de vos logs...
+channel query-log { file "/var/log/queries.log" versions 3 size 100m; print-time yes; }
+
+Maintenant nous allons mettre en place l'analyse des logs avec un petit script en perl. J'avais ecris deux versions, une qui intègre un tail en perl, et l'autre qui utilise des commandes de base (écrite en C) donc plus rapide et moins gourmande en ressources, car quand ça débite, faut que cela suive… remplacez 192.168.X.X par l'adressage de votre réseau… Pensez ici aussi à la rotation interne des logs selon votre config… Cela veut dire qu'il faudra relancer par crontab tout les X temps… De plus, si vous relancez souvent modifier le script pour ne pas télécharger les bases de données malware tout le temps, préférer un téléchargement séparé toutes les 24 ou 48h.
+
+/usr/bin/tail -f /var/log/queries.log | /bin/grep -v "\.in\-addr\.arpa"|grep -E "(192\.168\.[0-9]+\.[0-9]+)"|/usr/bin/awk -F " " '{print $4 " " $6}'|sed -re "s/\#[0-9]+\://g" | /usr/bin/perl /usr/local/bin/bh-dns-analyse.pl 2>> /exports/bh-dns-analyse.log &
+
+
