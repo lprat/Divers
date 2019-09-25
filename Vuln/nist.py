@@ -22,15 +22,15 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 from email.header import Header
 
-def sendmail(cve,cvssv3,cvssv3d,description,full):
+def sendmail(cve,cvssv3,cvssv3d,score,description,full):
   user = 'you@domain.fr'
   password = ''
   sent_from = user
   to = ['destination@domain.fr']
-  subject = Header(u'[CVE][NIST][New]'+cve.encode('UTF-8')+u' score v3 ['+str(cvssv3).encode('UTF-8')+u'] published by NIST', 'utf-8')
+  subject = Header(u'[CVE][NIST][New]'+cve.encode('UTF-8')+u' score v'+ str(score) +' ['+str(cvssv3).encode('UTF-8')+u'] published by NIST', 'utf-8')
   fullh=json2html.convert(json = full)
   urlx='https://nvd.nist.gov/vuln/detail/'+cve
-  html='<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang=""><head><meta charset="utf-8" /><title>New CVE NIST</title></head><body><h1>New '+cve+' score v3 '+str(cvssv3)+'</h1><p>Detail score cvss v3: '+cvssv3d+'</p><p>Description: '+description+'</p><p>Link: <a href=\"'+urlx+'\">'+urlx+'</a></p><h2>JSON extract</h2>'+fullh+'</body></html>'
+  html='<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang=""><head><meta charset="utf-8" /><title>New CVE NIST</title></head><body><h1>New '+cve+' score v'+str(score)+' '+str(cvssv3)+'</h1><p>Detail score cvss v3: '+cvssv3d+'</p><p>Description: '+description+'</p><p>Link: <a href=\"'+urlx+'\">'+urlx+'</a></p><h2>JSON extract</h2>'+fullh+'</body></html>'
   codage = 'utf-8'
   msg = MIMEMultipart()
   msg['From'] = user
@@ -89,16 +89,27 @@ if cvex['CVE_data_timestamp'] != data['CVE_data_timestamp']:
   for cvez in cvex['CVE_Items']:
     try:
       cveid=cvez['cve']['CVE_data_meta']['ID']
-      cvss3=cvez['impact']['baseMetricV3']['cvssV3']['baseScore']
-      cvss3d=cvez['impact']['baseMetricV3']['cvssV3']['vectorString']
       description=cvez['cve']['description']['description_data'][0]['value']
+      cvss3=0
+      cvss3d=""
+      score=3
+      try:
+        cvss3=cvez['impact']['baseMetricV3']['cvssV3']['baseScore']
+        cvss3d=cvez['impact']['baseMetricV3']['cvssV3']['vectorString']
+      except:
+        try:
+          cvss3=cvez['impact']['baseMetricV2']['cvssV2']['baseScore']
+          cvss3d=cvez['impact']['baseMetricV2']['cvssV2']['vectorString']
+          score=2
+        except:
+          continue
       if str(year) in str(cveid) and str(cveid) not in data and cvss3 >= 7:
         #add
         data[str(cveid)]=str(now)
 #        print "Cve:"+str(cveid)
 #        print "CVSS: "+str(cvss3)+"("+cvss3d+")"
 #        print "description:"+description
-        sendmail(cveid,cvss3,cvss3d,description,cvez)
+        sendmail(cveid,cvss3,cvss3d,score,description,cvez)
     except Exception as inst:
 #      print "Error:"+str(inst)
 #      print "CVE DATA:"+str(cvez)
