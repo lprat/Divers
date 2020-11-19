@@ -35,4 +35,4 @@ for root, directories, filenames in os.walk(sys.argv[2]):
                     r.append(st[1])
                 if stra and not st[2] in s:
                     r.append(st[2])
-            print('YARA on '+os.path.basename(filename)+' with rules: '+match.rule+' match DEBUG:'+str(r) + 'Str finded:' + str(s))
+            print('YARA on '+os.path.join(root, filename)+' with rules: '+match.rule+' match DEBUG:'+str(r) + 'Str finded:' + str(s))
