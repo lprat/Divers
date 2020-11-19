@@ -20,6 +20,6 @@ for root, directories, filenames in os.walk(sys.argv[2]):
             for st in match.strings:
                 if not st[1] in r:
                     r.append(st[1])
-                if not st[2] in s:
+                if stra and not st[2] in s:
                     r.append(st[2])
             print('YARA on '+os.path.basename(filename)+' with rules: '+match.rule+' match DEBUG:'+str(r) + 'Str finded:' + str(s))
