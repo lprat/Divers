@@ -3,7 +3,7 @@ import yara
 import sys
 pfile={}
 stra=False
-if len(sys.argv) == 3:
+if len(sys.argv) == 4:
     stra = True
 if os.path.isfile(sys.argv[1]):
     pfile[str(os.path.basename(sys.argv[1]))] = str(sys.argv[1])
