@@ -88,15 +88,17 @@ ansible_connection=winrm
     path_upload: C:\temp
 
   tasks:
-  - name: Get Windows version
-    win_shell: "systeminfo /fo csv | ConvertFrom-Csv | select OS*, System*, Hotfix* | Format-List"
-    register: windows_version
-  - name: Set os name
-    set_fact:
-      os_name: "{{ windows_version | regex_search('OS Name[\t ]*:[a-zA-Z0-9_\\-\t ]+') }}"
-  - name: Print Windows host information
-    debug:
-      msg: "{{ os_name }}"
+    - name: Get Windows version
+    block:
+      - name: Get Windows version
+        win_shell: "systeminfo /fo csv | ConvertFrom-Csv | select OS*, System*, Hotfix* | Format-List"
+        register: windows_version
+     - name: Set os name
+       set_fact:
+         os_name: "{{ windows_version | regex_search('OS Name[\t ]*:[a-zA-Z0-9_\\-\t ]+') }}"
+     - name: Print Windows host information
+       debug:
+         msg: "{{ os_name }}"
   - name: Get info for windows defender feature
     community.windows.win_feature_info:
       name: Windows-Defender
@@ -107,28 +109,30 @@ ansible_connection=winrm
     loop: "{{ feature_info.features }}"
 #TODO check for 2012 if agent is installed
 #TODO check for 2008R2 if agent AMA is installed
-  - name: Check if directory {{ path_upload }} exists
-    ansible.windows.win_stat:
-      path: "{{ path_upload }}"
-    register: dir_data
-  - name: Change path upload
-    set_fact:
-      path_upload: "c:"
-    when: not dir_data.stat.exists
-  - name: Copy defender script integrate file
-    ansible.windows.win_copy:
-      src: /tmp/defender.cmd
-      dest: "{{ path_upload }}\\defender.cmd"
-  - name: Run defender.cmd
-    ansible.windows.win_command: "{{ path_upload }}\\defender.cmd"
-    register: defender_out
-  - name: Remove a file defender.cmd, if present
-    ansible.windows.win_file:
-      path: C:\Temp\defender.cmd
-      state: absent
-  - name : display defender
-    ansible.builtin.debug:
-      msg: "{{ defender_out.stdout }}"
+  - name: onboard windows defender online
+  block:
+    - name: Check if directory {{ path_upload }} exists
+      ansible.windows.win_stat:
+        path: "{{ path_upload }}"
+      register: dir_data
+    - name: Change path upload
+      set_fact:
+        path_upload: "c:"
+      when: not dir_data.stat.exists
+    - name: Copy defender script integrate file
+      ansible.windows.win_copy:
+        src: /tmp/defender.cmd
+        dest: "{{ path_upload }}\\defender.cmd"
+    - name: Run defender.cmd
+      ansible.windows.win_command: "{{ path_upload }}\\defender.cmd"
+      register: defender_out
+    - name: Remove a file defender.cmd, if present
+      ansible.windows.win_file:
+        path: C:\Temp\defender.cmd
+        state: absent
+    - name : display defender
+      ansible.builtin.debug:
+        msg: "{{ defender_out.stdout }}"
 ```
 
 ### Verify Wsus value
