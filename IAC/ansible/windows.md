@@ -89,16 +89,16 @@ ansible_connection=winrm
 
   tasks:
     - name: Get Windows version
-    block:
-      - name: Get Windows version
-        win_shell: "systeminfo /fo csv | ConvertFrom-Csv | select OS*, System*, Hotfix* | Format-List"
-        register: windows_version
-     - name: Set os name
-       set_fact:
-         os_name: "{{ windows_version | regex_search('OS Name[\t ]*:[a-zA-Z0-9_\\-\t ]+') }}"
-     - name: Print Windows host information
-       debug:
-         msg: "{{ os_name }}"
+      block:
+        - name: Get Windows version
+          win_shell: "systeminfo /fo csv | ConvertFrom-Csv | select OS*, System*, Hotfix* | Format-List"
+          register: windows_version
+       - name: Set os name
+         set_fact:
+           os_name: "{{ windows_version | regex_search('OS Name[\t ]*:[a-zA-Z0-9_\\-\t ]+') }}"
+       - name: Print Windows host information
+         debug:
+           msg: "{{ os_name }}"
   - name: Get info for windows defender feature
     community.windows.win_feature_info:
       name: Windows-Defender
@@ -110,29 +110,29 @@ ansible_connection=winrm
 #TODO check for 2012 if agent is installed
 #TODO check for 2008R2 if agent AMA is installed
   - name: onboard windows defender online
-  block:
-    - name: Check if directory {{ path_upload }} exists
-      ansible.windows.win_stat:
-        path: "{{ path_upload }}"
-      register: dir_data
-    - name: Change path upload
-      set_fact:
-        path_upload: "c:"
-      when: not dir_data.stat.exists
-    - name: Copy defender script integrate file
-      ansible.windows.win_copy:
-        src: /tmp/defender.cmd
-        dest: "{{ path_upload }}\\defender.cmd"
-    - name: Run defender.cmd
-      ansible.windows.win_command: "{{ path_upload }}\\defender.cmd"
-      register: defender_out
-    - name: Remove a file defender.cmd, if present
-      ansible.windows.win_file:
-        path: C:\Temp\defender.cmd
-        state: absent
-    - name : display defender
-      ansible.builtin.debug:
-        msg: "{{ defender_out.stdout }}"
+    block:
+      - name: Check if directory {{ path_upload }} exists
+        ansible.windows.win_stat:
+          path: "{{ path_upload }}"
+        register: dir_data
+      - name: Change path upload
+        set_fact:
+          path_upload: "c:"
+        when: not dir_data.stat.exists
+      - name: Copy defender script integrate file
+        ansible.windows.win_copy:
+          src: /tmp/defender.cmd
+          dest: "{{ path_upload }}\\defender.cmd"
+      - name: Run defender.cmd
+        ansible.windows.win_command: "{{ path_upload }}\\defender.cmd"
+        register: defender_out
+      - name: Remove a file defender.cmd, if present
+        ansible.windows.win_file:
+          path: C:\Temp\defender.cmd
+          state: absent
+      - name : display defender
+        ansible.builtin.debug:
+          msg: "{{ defender_out.stdout }}"
 ```
 
 ### Verify Wsus value
@@ -143,24 +143,52 @@ ansible_connection=winrm
   gather_facts: no
   vars:
     wsus_servers: ["https://wsus.local", "https://wsus2.local"]
+    max_days_update: 30
 
   tasks:
-  - name: Check WSUS registry
-    win_reg_stat:
-      path: HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate
-      name: "{{ item }}"
-    register: reg_val
-    loop:
-      - WUServer
-      - WUStatusServer
-  - name: Wsus not valid
-    fail: msg="Wsus {{ item.value }} not found in {{ wsus_servers }}"
-    when: not item.value or item.value not in wsus_servers
-    loop: "{{ reg_val.results }}"
-#  - name: Value WSUS
-#    debug:
-#      msg: "{{ item }}"
-#    loop: "{{ reg_val.results }}"
+    - name: Check WSUS registry
+      win_reg_stat:
+        path: HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate
+        name: "{{ item }}"
+      register: reg_val
+      loop:
+        - WUServer
+        - WUStatusServer
+    - name: Wsus not valid
+      ansible.builtin.fail:
+        msg="Wsus {{ item.value }} not found in {{ wsus_servers }}"
+      when: not item.value or item.value not in wsus_servers
+      loop: "{{ reg_val.results }}"
+#    - name: Value WSUS
+#      debug:
+#        msg: "{{ item }}"
+#      loop: "{{ reg_val.results }}"
+
+    - name: Verify last update
+      block:
+        - name: Get last Installed update
+          win_shell: "gwmi win32_quickfixengineering |?{$_.InstalledOn -gt ((Get-Date).AddDays(-{{ max_days_update }}))}|select InstalledOn | Format-List"
+          register: last_install
+        - name: Set date
+          set_fact:
+            last_installed: "{{ last_install | regex_search('[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}') }}"
+        - name: Date last update dont respect {{ max_days_update }} days
+          ansible.builtin.fail:
+            msg="Last update dont respect {{ max_days_update }} days"
+          when: not last_installed
+        - name: Date last update respect {{ max_days_update }} days
+          debug:
+            msg: "Last update at {{ last_installed }}"
+      rescue:
+        - name: Get last Installed update
+          win_shell: "gwmi win32_quickfixengineering |sort installedon -desc |select -first 1 InstalledOn |format-list"
+          register: last_install
+        - name: Set date
+          set_fact:
+            last_installed: "{{ last_install | regex_search('[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}') }}"
+        - name: Date last update dont respect {{ max_days_update }} days
+          ansible.builtin.fail:
+            msg="Last update at {{ last_installed }}"
 ```
 
 
